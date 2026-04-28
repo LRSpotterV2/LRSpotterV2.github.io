@@ -1,0 +1,207 @@
+:root {
+    --md-sys-color-primary: #6750A4;
+    --md-sys-color-on-primary: #FFFFFF;
+    --md-sys-color-primary-container: #EADDFF;
+    --md-sys-color-on-primary-container: #21005D;
+    --md-sys-color-secondary-container: #E8DEF8;
+    --md-sys-color-on-secondary-container: #1D192B;
+    --md-sys-color-surface: #FEF7FF;
+    --md-sys-color-surface-container: #F3EDF7;
+    --md-sys-color-surface-variant: #E7E0EB;
+    --md-sys-color-on-surface: #1C1B1F;
+    --md-sys-color-on-surface-variant: #49454F;
+    --md-sys-color-outline: #79747E;
+    
+    --md-sys-shape-corner-extra-large: 28px;
+    /* 必須定義此變數，動畫才能讀取貝茲曲線 */
+    --transition-standard: cubic-bezier(0.2, 0, 0, 1);
+}
+
+body {
+    margin: 0;
+    font-family: 'Google Sans', 'Roboto', sans-serif;
+    background-color: var(--md-sys-color-surface);
+    color: var(--md-sys-color-on-surface);
+    padding-bottom: 80px;
+    overflow-x: hidden; /* 防止位移動畫產生水平捲軸 */
+}
+
+header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: var(--md-sys-color-surface);
+    z-index: 100;
+}
+
+.app-title { font-size: 22px; font-weight: 400; }
+
+.user-profile-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden; /* 確保圖片超出圓圈的部分會被裁切 */
+    background-color: var(--md-sys-color-surface-variant);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.user-profile-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* --- 核心內容切換動畫區域 --- */
+#app-content { 
+    padding: 16px; 
+    /* 統一使用 transition，移除原本衝突的 animation: pageFade */
+    transition: opacity 250ms var(--transition-standard), 
+                transform 250ms var(--transition-standard);
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    will-change: opacity, transform;
+}
+
+/* 離開狀態：舊內容向下沉並消失 */
+.page-exit {
+    opacity: 0 !important;
+    transform: translateY(24px) scale(0.96) !important;
+}
+
+/* 進入初始狀態：新內容剛注入時，先停在上方準備切入 */
+.page-enter {
+    opacity: 0 !important;
+    transform: translateY(-24px) scale(0.96) !important;
+}
+/* -------------------------- */
+
+.spotting-card {
+    background: var(--md-sys-color-surface-container);
+    border-radius: var(--md-sys-shape-corner-extra-large);
+    padding: 20px;
+    margin-bottom: 12px;
+    border-left: 6px solid var(--md-sys-color-primary);
+}
+
+.route-badge {
+    background: var(--md-sys-color-primary);
+    color: white;
+    padding: 2px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.filter-group {
+    display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 8px;
+}
+
+.chip {
+    background: var(--md-sys-color-surface-variant);
+    padding: 8px 16px; border-radius: 8px; font-size: 14px; white-space: nowrap;
+}
+
+nav {
+    position: fixed; bottom: 0; width: 100%; height: 80px;
+    background: var(--md-sys-color-surface-container);
+    display: flex; justify-content: space-around; align-items: center;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+}
+
+.nav-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    border: none; background: none; color: var(--md-sys-color-on-surface-variant);
+    cursor: pointer;
+}
+
+.nav-item.active { color: var(--md-sys-color-primary); }
+
+.nav-icon-bg {
+    width: 64px; height: 32px; border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s, transform 0.1s var(--transition-standard);
+}
+
+.nav-item.active .nav-icon-bg { background: var(--md-sys-color-secondary-container); }
+
+/* 導航按鈕微動回饋 */
+.nav-item:active .nav-icon-bg { transform: scale(0.9); }
+
+.fab {
+    position: fixed; bottom: 100px; right: 20px;
+    width: 56px; height: 56px; border-radius: 16px;
+    background: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+    border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: transform 0.1s var(--transition-standard);
+}
+
+.fab:active { transform: scale(0.9); }
+
+/* 每一條行蹤紀錄的卡片容器 */
+.spotting-card {
+    background-color: var(--md-sys-color-surface-container-lowest, #ffffff);
+    padding: 10px 16px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    border-left: 5px solid transparent; /* 顏色由 JS 動態注入 */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.spotting-card:active {
+    transform: scale(0.98);
+    box-shadow: 0 0 1px rgba(0,0,0,0.1);
+}
+
+/* 路線編號的徽章 */
+.route-badge {
+    display: inline-block;
+    width: 34px;
+    padding: 1px 0;
+    border-radius: 4px;
+    font-size: 11px;
+    text-align: center;
+    font-weight: 700;
+    color: #FFFFFF;
+}
+
+/* 確保圖示容器不縮放 */
+.train-icon-container img {
+    object-fit: contain;
+    /* 輕微向左偏移讓拖卡看起來像連在一起 */
+}
+
+.train-icon-container img + img {
+    margin-left: -5px; 
+}
+
+/* 搜尋框的容器樣式 (如果你在 live.html 有用到) */
+.filter-group {
+    display: flex;
+    gap: 8px;
+    padding: 8px 16px;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+}
+
+.chip {
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: var(--md-sys-color-secondary-container);
+    color: var(--md-sys-color-on-secondary-container);
+    font-size: 13px;
+    font-weight: 500;
+}

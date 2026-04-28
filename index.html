@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LRSpotterV2</title>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css">
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        // 1. 這裡也要補上 Auth 模組，讓 script.js 以外的地方如果需要引用也能找到
+        import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBErRYvF2got2vrwY0-a8KSc8JVWKdeksQ",
+            authDomain: "lr-whereabout-report.firebaseapp.com",
+            projectId: "lr-whereabout-report",
+            storageBucket: "lr-whereabout-report.firebasestorage.app",
+            messagingSenderId: "939888577145",
+            appId: "1:939888577145:web:b4b51b3a2f3b8bd685e2a8",
+            databaseURL: "https://lr-whereabout-report-default-rtdb.firebaseio.com"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        
+        // --- 關鍵修正：掛載數據庫與常用方法 ---
+        window.db = getDatabase(app);
+        window.ref = ref;
+        window.onValue = onValue;
+        
+        // 2. 這裡不需要重複 import script.js 內的 login/logout，
+        // 因為 script.js 會以 module 形式運行並掛載函數到 window。
+    </script>
+</head>
+<body>
+
+    <header>
+        <div class="app-title" id="headerTitle">LRSpotter</div>
+        <div class="user-profile-btn" id="userProfileBtn" onclick="window.user ? window.logout() : window.login()" style="cursor: pointer;">
+            <span class="material-symbols-rounded">person</span>
+        </div>
+    </header>
+
+    <main id="app-content"></main>
+
+    <button class="fab" id="fabAdd">
+        <span class="material-symbols-rounded">add</span>
+    </button>
+
+    <nav id="bottom-nav">
+        <button class="nav-item active" data-page="live" data-title="LRSpotter">
+            <div class="nav-icon-bg"><span class="material-symbols-rounded">train</span></div>
+            <span style="font-size:11px;">行蹤</span>
+        </button>
+        <button class="nav-item" data-page="trains" data-title="列車資訊">
+            <div class="nav-icon-bg"><span class="material-symbols-rounded">directions_railway</span></div>
+            <span style="font-size:11px;">列車</span>
+        </button>
+        <button class="nav-item" data-page="routes" data-title="路線網絡">
+            <div class="nav-icon-bg"><span class="material-symbols-rounded">map</span></div>
+            <span style="font-size:11px;">路線</span>
+        </button>
+        <button class="nav-item" data-page="search" data-title="搜尋記錄">
+            <div class="nav-icon-bg"><span class="material-symbols-rounded">history</span></div>
+            <span style="font-size:11px;">搜尋</span>
+        </button>
+        <button class="nav-item" data-page="settings" data-title="系統設定">
+            <div class="nav-icon-bg"><span class="material-symbols-rounded">settings</span></div>
+            <span style="font-size:11px;">設定</span>
+        </button>
+    </nav>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
