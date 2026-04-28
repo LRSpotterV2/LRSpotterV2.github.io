@@ -1,0 +1,26 @@
+<div class="filter-group">
+    <div class="chip">所有路綫</div>
+    <div class="chip">我的最愛</div>
+    <div class="chip">當日營運</div>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 0 16px 8px;">
+    <div id="sortLabel" style="font-size: 12px; color: var(--md-sys-color-outline); font-weight: 500;">
+        排序：按時間 (新→舊)
+    </div>
+    <button id="sortToggleBtn" style="background: none; border: 1px solid var(--md-sys-color-outline-variant); border-radius: 8px; padding: 4px 12px; font-size: 12px; color: var(--md-sys-color-primary); display: flex; align-items: center; gap: 4px; cursor: pointer;">
+        <span class="material-symbols-rounded" style="font-size: 16px;">swap_vert</span>
+        切換排序
+    </button>
+</div>
+<div class="spotting-card" style="padding: 12px 16px; border-left: none;">
+    <div style="display:flex; align-items:center; gap:10px;">
+        <span class="material-symbols-rounded">search</span>
+        <input type="text" id="searchComp" placeholder="搜尋車編..." style="border:none; background:none; outline:none; flex:1; font-size:16px;">
+    </div>
+</div>
+
+<div id="liveList">
+    <div style="text-align: center; padding: 40px; color: var(--md-sys-color-outline);">
+        <p>正在同步數據...</p>
+    </div>
+</div>
