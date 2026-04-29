@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 	window.navigateTo = navigateTo;
 
-    function getCarIcon(carNum, specialConfig) {
+    window.getCarIcon = function(carNum, specialConfig) {
         const numStr = String(carNum).trim();
         const num = parseInt(numStr);
         if (specialConfig) {
@@ -165,7 +165,12 @@ let runOccupancyData = new Map();
 let currentTab = 'all'; 
 let isInitialLoadComplete = false;
 
-// 確保這裡只有一組 sortMode 和 isAscending，不要在後面重複 let 或 const
+// 關鍵修改：將變數掛載到 window，讓全域函數 (如 viewPhaseDetails) 可以讀取
+window.allReports = allReports; 
+window.specialTrainsConfig = specialTrainsConfig;
+window.runOccupancyData = runOccupancyData;
+window.colorMap = colorMap; // 確保顏色對照表也在全域
+
 let sortMode = 'time'; 
 let isAscending = false;
 
@@ -363,8 +368,10 @@ function fetchData(dateStr = "") {
                 });
 
                 allReports = Array.from(latestMap.values());
-                window.applyFiltersAndSearch();
-            });
+    window.allReports = allReports; 
+    window.specialTrainsConfig = specialTrainsConfig; 
+    window.applyFiltersAndSearch();
+});
         }
 
 
@@ -737,3 +744,215 @@ if (dateInput) {
     };
 }
 document.head.appendChild(disableSelectStyle);
+
+
+window.viewPhaseDetails = (phaseName, rangeStr) => {
+    const contentArea = document.getElementById('app-content');
+    const headerTitle = document.getElementById('headerTitle');
+    if (!contentArea) return;
+
+    // --- 執行離開動畫 ---
+    contentArea.classList.add('page-exit');
+    
+    // 等待 transition 時間 (250ms) 後再更換內容
+    setTimeout(() => {
+        // 更新標題並加入返回按鈕
+        if (headerTitle) {
+            headerTitle.style.display = 'flex';
+            headerTitle.style.alignItems = 'center';
+            headerTitle.style.gap = '8px';
+            headerTitle.innerHTML = `
+                <span class="material-symbols-rounded" 
+                      style="cursor: pointer; padding: 4px; margin-left: -4px; opacity: 0.8;" 
+                      id="phaseDetailBackBtn">
+                    arrow_back_ios_new
+                </span>
+                <span>${phaseName}列車</span>
+            `;
+
+            // 綁定返回事件：尋找導航欄中的「列車」按鈕並模擬點擊
+            const backBtn = document.getElementById('phaseDetailBackBtn');
+            if (backBtn) {
+                backBtn.onclick = () => {
+                    const navTrainBtn = Array.from(document.querySelectorAll('.nav-item, .tab-item'))
+                                            .find(el => el.textContent.includes('列車'));
+                    if (navTrainBtn) {
+                        navTrainBtn.click();
+                    } else if (window.renderPhaseSelection) {
+                        window.renderPhaseSelection();
+                    } else {
+                        // 若找不到渲染函式，則嘗試從當前路徑回退
+                        window.history.back();
+                    }
+                };
+            }
+        }
+
+        const getSpecialData = (fullId, config) => {
+            if (!fullId || !config) return null;
+            const now = new Date();
+            const operDate = new Date(now);
+            if (now.getHours() < 5) operDate.setDate(now.getDate() - 1);
+            const currentOperTime = new Date(operDate.getFullYear(), operDate.getMonth(), operDate.getDate()).getTime();
+            const carNums = fullId.split(/[\+\-–]/);
+            
+            for (let key in config) {
+                const theme = config[key];
+                if (theme.cars && carNums.some(n => theme.cars.includes(n.trim()))) {
+                    const endT = theme.EndDate ? new Date(theme.EndDate).getTime() : null;
+                    if (endT && currentOperTime > endT) continue;
+                    
+                    const fmtDate = (dStr) => {
+                        if (!dStr) return "";
+                        const d = new Date(dStr);
+                        const y = d.getFullYear();
+                        const m = String(d.getMonth() + 1).padStart(2, '0');
+                        const day = String(d.getDate()).padStart(2, '0');
+                        return `${y}/${m}/${day}`;
+                    };
+                    
+                    return {
+                        desc: theme.desc || "",
+                        duration: theme.StartDate ? `${fmtDate(theme.StartDate)} - ${fmtDate(theme.EndDate)}` : ""
+                    };
+                }
+            }
+            return null; 
+        };
+
+        const carNumbers = [];
+        rangeStr.split(',').forEach(part => {
+            const range = part.split('-').map(n => n.trim());
+            if (range.length === 2) {
+                for (let i = parseInt(range[0]); i <= parseInt(range[1]); i++) carNumbers.push(String(i));
+            } else { carNumbers.push(range[0]); }
+        });
+
+        const reports = window.allReports || [];
+        const colors = window.colorMap || {};
+
+        const totalTrains = carNumbers.length;
+        const trackedTrains = carNumbers.filter(num => 
+            reports.some(r => String(r.fullId || '').split(/[\+\-–]/).map(s => s.trim()).includes(num))
+        ).length;
+
+        // 計算「行蹤數目」：統計 reports 中所有屬於此車隊範圍內的紀錄總數
+        const allRecordsCount = reports.reduce((count, r) => {
+            const ids = String(r.fullId || '').split(/[\+\-–]/).map(s => s.trim());
+            return count + (ids.some(id => carNumbers.includes(id)) ? 1 : 0);
+        }, 0);
+
+        const activeRate = totalTrains > 0 ? ((trackedTrains / totalTrains) * 100).toFixed(1) : 0;
+
+        // 切換內容並套用進入動畫樣式
+        contentArea.classList.remove('page-exit');
+        contentArea.classList.add('page-enter');
+
+        contentArea.innerHTML = `
+            <div id="phaseDetailList">
+                <div style="padding: 16px; color: var(--md-sys-color-on-surface-variant); display: flex; justify-content: space-between; width: 100%; box-sizing: border-box; gap: 4px;">
+                    <div style="display: flex; flex-direction: column; align-items: flex-start; flex: 1;">
+                        <div style="width: 100%; text-align: center; font-size: 11px; opacity: 0.8; margin-bottom: 4px;">列車總數</div>
+                        <div style="width: 100%; text-align: center; font-size: 22px; font-weight: 800; font-family: 'Roboto Mono', monospace; line-height: 1;">${totalTrains}</div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+                        <div style="width: 100%; text-align: center; font-size: 11px; opacity: 0.8; margin-bottom: 4px;">出車數目</div>
+                        <div style="width: 100%; text-align: center; font-size: 22px; font-weight: 800; font-family: 'Roboto Mono', monospace; line-height: 1;">${trackedTrains}</div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+                        <div style="width: 100%; text-align: center; font-size: 11px; opacity: 0.8; margin-bottom: 4px;">行蹤報告</div>
+                        <div style="width: 100%; text-align: center; font-size: 22px; font-weight: 800; font-family: 'Roboto Mono', monospace; line-height: 1;">${allRecordsCount}</div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; align-items: flex-end; flex: 1;">
+                        <div style="width: 100%; text-align: center; font-size: 11px; opacity: 0.8; margin-bottom: 4px;">出車率</div>
+                        <div style="width: 100%; text-align: center; font-size: 22px; font-weight: 800; font-family: 'Roboto Mono', monospace; line-height: 1;">${activeRate}%</div>
+                    </div>
+                </div>
+                <div id="phaseCardsContainer" style="display: flex; flex-direction: column;"></div>
+            </div>
+        `;
+        
+        const container = document.getElementById('phaseCardsContainer');
+
+        const renderDescSection = (data, isOffline = false) => {
+            if (!data) return '<div style="flex: 1;"></div>';
+            const color = isOffline ? 'var(--md-sys-color-outline)' : 'var(--md-sys-color-on-surface)';
+            return `
+                <div style="min-width: 0; flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                    <div style="font-size: 12px; font-weight: 500; color: ${color}; opacity: 0.8; line-height: 1.2; word-break: break-word;">${data.desc}</div>
+                    ${data.duration ? `<div style="font-size: 9px; color: ${color}; opacity: 0.5; margin-top: 2px; font-family: 'Roboto Mono', monospace;">${data.duration}</div>` : ''}
+                </div>
+            `;
+        };
+
+        carNumbers.forEach(num => {
+            const report = reports.find(r => 
+                String(r.fullId || '').split(/[\+\-–]/).map(s => s.trim()).includes(num)
+            );
+
+            const currentConfig = window.specialTrainsConfig || {};
+            const iconPath = window.getCarIcon(num, currentConfig);
+            const specialData = getSpecialData(report ? report.fullId : num, currentConfig);
+
+            const cardWrapper = document.createElement('div');
+            const commonStyle = `
+                border-radius: 16px; 
+                display: flex; 
+                align-items: center; 
+                background: var(--md-sys-color-surface-container-low); 
+                box-shadow: var(--md-sys-elevation-1);
+                min-height: 30px;
+                padding: 8px 0;
+                margin-bottom: 8px;
+            `;
+
+            if (report) {
+                const routeColor = colors[report.rteKey] || '#6750A4';
+                cardWrapper.innerHTML = `
+                    <div class="spotting-card" style="${commonStyle}">
+                        <div class="train-icon-container" style="display: flex; align-items: center; flex: 0 0 32px; height: 32px; justify-content: center;">
+                            <img src="${iconPath}" style="height: 26px; width: 28px; object-fit: contain;">
+                        </div>
+                        <div style="flex: 0 0 84px;">
+                            <div style="font-size: 17px; font-weight: 800; color: var(--md-sys-color-on-surface); line-height: 1.2;">${num}</div>
+                            <div style="font-size: 10px; opacity: 0.5; white-space: nowrap;">(${report.fullId})</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px; border-left: 1px solid var(--md-sys-color-outline-variant); padding-left: 12px; flex: 1; min-width: 0;">
+                            ${renderDescSection(specialData)}
+                            <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; flex-shrink: 0; margin-left: auto;">
+                                <span class="route-badge" style="background: ${routeColor}; color: white; width: 40px; border-radius: 6px; font-size: 12px; text-align: center; font-weight: 700; padding: 1px 0;">${report.rteKey}</span>
+                                <span style="border: 1px solid var(--md-sys-color-outline); width: 40px; border-radius: 6px; font-size: 10px; text-align: center; color: var(--md-sys-color-on-surface-variant);">${report.rno}</span>
+                            </div>
+                            <span class="material-symbols-rounded" style="opacity: 0.3;">chevron_right</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                cardWrapper.innerHTML = `
+                    <div class="spotting-card" style="${commonStyle} opacity: 0.6;">
+                        <div class="train-icon-container" style="display: flex; align-items: center; flex: 0 0 32px; height: 32px; justify-content: center;">
+                            <img src="${iconPath}" style="height: 26px; width: 28px; object-fit: contain; filter: grayscale(1); opacity: 0.5;">
+                        </div>
+                        <div style="flex: 0 0 84px;">
+                            <div style="font-size: 17px; font-weight: 800; color: var(--md-sys-color-outline);">${num}</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px; border-left: 1px solid var(--md-sys-color-outline-variant); padding-left: 12px; flex: 1; min-width: 0;">
+                            ${renderDescSection(specialData, true)}
+                            <div style="color: var(--md-sys-color-outline); font-size: 12px; font-weight: 500; flex-shrink: 0; width: 60px; text-align: right; padding-right: 4px; margin-left: auto;">
+                                暫無數據
+                            </div>
+                            <span class="material-symbols-rounded" style="opacity: 0.3;">chevron_right</span>
+                        </div>
+                    </div>
+                `;
+            }
+            container.appendChild(cardWrapper);
+        });
+
+        // 觸發進入動畫
+        requestAnimationFrame(() => {
+            contentArea.classList.remove('page-enter');
+        });
+
+    }, 250);
+};
