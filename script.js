@@ -1,5 +1,6 @@
 // --- Firebase 模組導入 ---
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getDatabase, ref, onValue, get, push, set, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 document.addEventListener('DOMContentLoaded', () => {
     const contentArea = document.getElementById('app-content');
@@ -10,7 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const auth = getAuth();
     const provider = new GoogleAuthProvider();
 
-    // 全域變數掛載，確保其他邏輯可存取
+window.db = getDatabase();
+    window.ref = ref;
+    window.onValue = onValue;
+    window.get = get; // 修正關鍵：讓 viewTrainHistory 能找到 get
     window.user = null;
     window.favorites = new Set();
 
@@ -582,81 +586,90 @@ chips.forEach(chip => {
         return ""; 
     }
 
-    // 完全恢復你提供的 createTrainCard 邏輯與變數定義
-    function createTrainCard(data, specialDesc, isOutdated = false, specialConfig = {}) {
-        const div = document.createElement('div');
-        const routeColor = colorMap[data.rteKey] || '#6750A4';
+function createTrainCard(data, specialDesc, isOutdated = false, specialConfig = {}) {
+    const div = document.createElement('div');
+    const routeColor = colorMap[data.rteKey] || '#6750A4';
+    
+    const carNums = (data.fullId || '').split(/[\+\-–]/).map(n => n.trim());
+    const isDouble = carNums.length > 1;
+
+    const icon1 = getCarIcon(carNums[0], specialConfig);
+    const icon2 = isDouble ? getCarIcon(carNums[1], specialConfig) : null;
+
+    // --- 修改部分：處理車號點擊 (不改變顏色、無底線、無額外空格) ---
+    const rawFullId = data.fullId || '----';
+    const displayFullIdHtml = rawFullId.split(/([\+\-–])/).map(part => {
+        const trimmed = part.trim();
+        // 如果是分隔符 (+, -, –)，直接回傳原始部分
+        if (/[\+\-–]/.test(trimmed)) return part;
         
-        const carNums = (data.fullId || '').split(/[\+\-–]/).map(n => n.trim());
-        const isDouble = carNums.length > 1;
+        // 如果是車號，包裹 span 並加上 onclick，顏色繼承父元素 (on-surface)
+        return `<span 
+            onclick="event.stopPropagation(); window.viewTrainHistory('${trimmed}')" 
+            style="cursor: pointer; -webkit-tap-highlight-color: transparent;">${trimmed}</span>`;
+    }).join('');
 
-        const icon1 = getCarIcon(carNums[0], specialConfig);
-        const icon2 = isDouble ? getCarIcon(carNums[1], specialConfig) : null;
+    const statusTextHtml = isOutdated ? `<div style="font-size: 9px; color: var(--md-sys-color-outline); font-weight: 500; margin-bottom: -2px; letter-spacing: 0.5px;">車務調動</div>` : '';
+    
+    const opacityValue = isOutdated ? "0.5" : "1";
+    const opacityStyle = `opacity: ${opacityValue};`;
 
-        const displayFullId = data.fullId || '----';
-        const statusTextHtml = isOutdated ? `<div style="font-size: 9px; color: var(--md-sys-color-outline); font-weight: 500; margin-bottom: -2px; letter-spacing: 0.5px;">車務調動</div>` : '';
-        
-        // --- 核心修改：定義透明度 ---
-        const opacityValue = isOutdated ? "0.5" : "1";
-        const opacityStyle = `opacity: ${opacityValue};`;
+    let destination = "---";
+    if (data.dRte && data.dRte.includes('往')) {
+        destination = data.dRte.split('往')[1].trim();
+    } else if (routeCfg[data.rteKey]) {
+        destination = routeCfg[data.rteKey].join(' / ');
+    }
 
-        let destination = "---";
-        if (data.dRte && data.dRte.includes('往')) {
-            destination = data.dRte.split('往')[1].trim();
-        } else if (routeCfg[data.rteKey]) {
-            destination = routeCfg[data.rteKey].join(' / ');
-        }
+    const infoWidth = "84px";
+    const specialDescHtml = specialDesc ? `<div style="font-size: 10px; color: var(--md-sys-color-outline); width: ${infoWidth}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; letter-spacing: -0.5px;">${specialDesc}</div>` : '';
+    const memHtml = data.mem ? `<div style="font-size: 10px; color: var(--md-sys-color-primary); opacity: 0.9; max-width: 100%; line-height: 1.2; margin-top: 2px; letter-spacing: -0.2px; word-wrap: break-word;">${data.mem}</div>` : '';
 
-        const infoWidth = "84px";
-        const specialDescHtml = specialDesc ? `<div style="font-size: 10px; color: var(--md-sys-color-outline); width: ${infoWidth}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; letter-spacing: -0.5px;">${specialDesc}</div>` : '';
-        const memHtml = data.mem ? `<div style="font-size: 10px; color: var(--md-sys-color-primary); opacity: 0.9; max-width: 100%; line-height: 1.2; margin-top: 2px; letter-spacing: -0.2px; word-wrap: break-word;">${data.mem}</div>` : '';
-
-        // --- 核心修改：加入 data-target-opacity 屬性 ---
-        div.innerHTML = `
-            <div class="spotting-card" 
-                 data-target-opacity="${opacityValue}"
-                 style="border-left-color: ${routeColor}; padding: 10px 12px; border-radius: 12px; margin-bottom: 8px; display: flex; flex-direction: column; ${opacityStyle}">
-                <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
-                    <div class="train-icon-container" style="display: flex; align-items: center; flex: 0 0 56px; height: 32px; justify-content: flex-start;">
-                        <img src="${icon1}" style="height: 26px; width: 28px; object-fit: contain;">
-                        ${isDouble ? `<img src="${icon2}" style="height: 26px; width: 28px; object-fit: contain;">` : ''}
+    div.innerHTML = `
+        <div class="spotting-card" 
+             data-target-opacity="${opacityValue}"
+             style="border-left-color: ${routeColor}; padding: 10px 12px; border-radius: 12px; margin-bottom: 8px; display: flex; flex-direction: column; ${opacityStyle}">
+            <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+                <div class="train-icon-container" style="display: flex; align-items: center; flex: 0 0 56px; height: 32px; justify-content: flex-start;">
+                    <img src="${icon1}" style="height: 26px; width: 28px; object-fit: contain;">
+                    ${isDouble ? `<img src="${icon2}" style="height: 26px; width: 28px; object-fit: contain;">` : ''}
+                </div>
+                <div style="display: flex; flex-direction: column; flex: 0 0 ${infoWidth}; min-width: ${infoWidth}; overflow: hidden;">
+                    ${statusTextHtml}
+                    <div style="font-size: 17px; font-weight: 800; color: var(--md-sys-color-on-surface); letter-spacing: -0.5px; line-height: 1.2; width: ${infoWidth}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        ${displayFullIdHtml}
                     </div>
-                    <div style="display: flex; flex-direction: column; flex: 0 0 ${infoWidth}; min-width: ${infoWidth}; overflow: hidden;">
-                        ${statusTextHtml}
-                        <div style="font-size: 17px; font-weight: 800; color: var(--md-sys-color-on-surface); letter-spacing: -0.5px; line-height: 1.2; width: ${infoWidth}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                            ${displayFullId}
-                        </div>
-                        ${specialDescHtml}
-                        <div class="mem-container-inner">${memHtml}</div>
+                    ${specialDescHtml}
+                    <div class="mem-container-inner">${memHtml}</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px; border-left: 1px solid var(--md-sys-color-outline-variant, #eee); padding-left: 8px; flex: 1; min-width: 0;">
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 2px; flex-shrink: 0;">
+                        <span class="route-badge" style="background: ${routeColor}; color: #FFFFFF; width: 36px; padding: 1px 0; border: 1px solid ${routeColor}; border-radius: 4px; font-size: 11px; text-align: center; font-weight: 700; box-sizing: border-box;">
+                            ${data.rteKey || '---'}
+                        </span>
+                        <span style="background: transparent; border: 1px solid var(--md-sys-color-outline); color: var(--md-sys-color-on-surface-variant); width: 36px; padding: 1px 0; border-radius: 4px; font-size: 10px; text-align: center; box-sizing: border-box;">
+                            ${data.rno || '---'}
+                        </span>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 8px; border-left: 1px solid var(--md-sys-color-outline-variant, #eee); padding-left: 8px; flex: 1; min-width: 0;">
-                        <div style="display: flex; flex-direction: column; align-items: center; gap: 2px; flex-shrink: 0;">
-                            <span class="route-badge" style="background: ${routeColor}; color: #FFFFFF; width: 36px; padding: 1px 0; border: 1px solid ${routeColor}; border-radius: 4px; font-size: 11px; text-align: center; font-weight: 700; box-sizing: border-box;">
-                                ${data.rteKey || '---'}
-                            </span>
-                            <span style="background: transparent; border: 1px solid var(--md-sys-color-outline); color: var(--md-sys-color-on-surface-variant); width: 36px; padding: 1px 0; border-radius: 4px; font-size: 10px; text-align: center; box-sizing: border-box;">
-                                ${data.rno || '---'}
-                            </span>
+                    <div style="display: flex; flex-direction: column; min-width: 0;">
+                        <div style="font-size: 14px; color: var(--md-sys-color-on-surface); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            ${destination}
                         </div>
-                        <div style="display: flex; flex-direction: column; min-width: 0;">
-                            <div style="font-size: 14px; color: var(--md-sys-color-on-surface); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                ${destination}
-                            </div>
-                            <div style="font-size: 11px; color: var(--md-sys-color-on-surface-variant); opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                ${data.loc || '未知位置'}
-                            </div>
-                        </div>
-                    </div>
-                    <div style="text-align: right; flex-shrink: 0; margin-left: auto;">
-                        <div style="font-size: 10px; color: var(--md-sys-color-outline); font-family: 'Roboto Mono', monospace; font-weight: 500;">
-                            ${data.tStr || '--:--'}
+                        <div style="font-size: 11px; color: var(--md-sys-color-on-surface-variant); opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            ${data.loc || '未知位置'}
                         </div>
                     </div>
                 </div>
+                <div style="text-align: right; flex-shrink: 0; margin-left: auto;">
+                    <div style="font-size: 10px; color: var(--md-sys-color-outline); font-family: 'Roboto Mono', monospace; font-weight: 500;">
+                        ${data.tStr || '--:--'}
+                    </div>
+                </div>
             </div>
-        `;
-        return div;
-    }
+        </div>
+    `;
+    return div;
+}
 
     navigateTo('live', 'LRSpotter');
 });
@@ -770,7 +783,6 @@ window.viewPhaseDetails = (phaseName, rangeStr) => {
                 <span>${phaseName}列車</span>
             `;
 
-            // 綁定返回事件：尋找導航欄中的「列車」按鈕並模擬點擊
             const backBtn = document.getElementById('phaseDetailBackBtn');
             if (backBtn) {
                 backBtn.onclick = () => {
@@ -781,24 +793,26 @@ window.viewPhaseDetails = (phaseName, rangeStr) => {
                     } else if (window.renderPhaseSelection) {
                         window.renderPhaseSelection();
                     } else {
-                        // 若找不到渲染函式，則嘗試從當前路徑回退
                         window.history.back();
                     }
                 };
             }
         }
 
-        const getSpecialData = (fullId, config) => {
-            if (!fullId || !config) return null;
+        // 修改後的邏輯：僅針對列表中精確匹配的車號顯示描述
+        const getSpecialData = (specificNum, config) => {
+            if (!specificNum || !config) return null;
             const now = new Date();
             const operDate = new Date(now);
             if (now.getHours() < 5) operDate.setDate(now.getDate() - 1);
             const currentOperTime = new Date(operDate.getFullYear(), operDate.getMonth(), operDate.getDate()).getTime();
-            const carNums = fullId.split(/[\+\-–]/);
+            
+            const targetNum = String(specificNum).trim();
             
             for (let key in config) {
                 const theme = config[key];
-                if (theme.cars && carNums.some(n => theme.cars.includes(n.trim()))) {
+                // 檢查該主題的車號清單中是否包含這個「特定」車號
+                if (theme.cars && theme.cars.includes(targetNum)) {
                     const endT = theme.EndDate ? new Date(theme.EndDate).getTime() : null;
                     if (endT && currentOperTime > endT) continue;
                     
@@ -836,7 +850,6 @@ window.viewPhaseDetails = (phaseName, rangeStr) => {
             reports.some(r => String(r.fullId || '').split(/[\+\-–]/).map(s => s.trim()).includes(num))
         ).length;
 
-        // 計算「行蹤數目」：統計 reports 中所有屬於此車隊範圍內的紀錄總數
         const allRecordsCount = reports.reduce((count, r) => {
             const ids = String(r.fullId || '').split(/[\+\-–]/).map(s => s.trim());
             return count + (ids.some(id => carNumbers.includes(id)) ? 1 : 0);
@@ -844,7 +857,6 @@ window.viewPhaseDetails = (phaseName, rangeStr) => {
 
         const activeRate = totalTrains > 0 ? ((trackedTrains / totalTrains) * 100).toFixed(1) : 0;
 
-        // 切換內容並套用進入動畫樣式
         contentArea.classList.remove('page-exit');
         contentArea.classList.add('page-enter');
 
@@ -892,7 +904,9 @@ window.viewPhaseDetails = (phaseName, rangeStr) => {
 
             const currentConfig = window.specialTrainsConfig || {};
             const iconPath = window.getCarIcon(num, currentConfig);
-            const specialData = getSpecialData(report ? report.fullId : num, currentConfig);
+            
+            // 關鍵修改：傳入當前遍歷的單一車號 num 而非 report.fullId，以確保精確判斷
+            const specialData = getSpecialData(num, currentConfig);
 
             const cardWrapper = document.createElement('div');
             const commonStyle = `
@@ -947,12 +961,335 @@ window.viewPhaseDetails = (phaseName, rangeStr) => {
                 `;
             }
             container.appendChild(cardWrapper);
+			
+			cardWrapper.style.cursor = 'pointer';
+			cardWrapper.onclick = () => {
+				if (window.viewTrainHistory) {
+					// 傳入點擊的單一車號
+					window.viewTrainHistory(num);
+				}
+			};
         });
 
-        // 觸發進入動畫
         requestAnimationFrame(() => {
             contentArea.classList.remove('page-enter');
         });
 
+    }, 250);
+};
+
+
+window.viewTrainHistory = async (carNum) => {
+    const contentArea = document.getElementById('app-content');
+    const headerTitle = document.getElementById('headerTitle');
+    if (!contentArea || !window.db || !window.get) return;
+
+    let selectedDate = new Date(); 
+    let viewDate = new Date();     
+    let cachedTraces = [];
+
+    contentArea.classList.add('page-exit');
+    
+    setTimeout(async () => {
+        if (headerTitle) {
+            const currentConfig = window.specialTrainsConfig || {};
+            const mainIcon = window.getCarIcon ? window.getCarIcon(carNum, currentConfig) : "P1R.png";
+
+            const getSpecialDataForHeader = (specificNum, config) => {
+                if (!specificNum || !config) return null;
+                const targetNum = String(specificNum).trim();
+                for (let key in config) {
+                    const theme = config[key];
+                    if (theme.cars && theme.cars.includes(targetNum)) {
+                        const fmt = (dStr) => {
+                            if (!dStr) return "";
+                            const d = new Date(dStr);
+                            return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`;
+                        };
+                        return {
+                            desc: theme.desc || "",
+                            duration: theme.StartDate ? `${fmt(theme.StartDate)} - ${fmt(theme.EndDate)}` : ""
+                        };
+                    }
+                }
+                return null;
+            };
+
+            const specialInfo = getSpecialDataForHeader(carNum, currentConfig);
+
+            // 移除所有硬編碼的高度，交給 index.html 的 CSS 控制
+            headerTitle.style.display = 'flex';
+            headerTitle.style.alignItems = 'center';
+            headerTitle.style.gap = '10px';
+            headerTitle.style.padding = ''; // 清除之前可能殘留的 inline padding
+            headerTitle.style.height = '';  // 讓 CSS 接手
+            headerTitle.style.minHeight = '';
+            headerTitle.style.maxHeight = ''
+
+            headerTitle.innerHTML = `
+                <span class="material-symbols-rounded" 
+                      style="cursor: pointer; padding: 4px; margin-left: -4px; opacity: 0.8; flex-shrink: 0;" 
+                      id="historyBackBtn">
+                    arrow_back_ios_new
+                </span>
+                
+                <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                    <div style="flex-shrink: 0; width: 24px; display: flex; justify-content: center;">
+                        <img src="${mainIcon}" style="height: 18px; width: 24px; object-fit: contain;">
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; justify-content: center; line-height: 1.2; min-width: 0;">
+                        <div style="font-size: ${specialInfo ? '15px' : '18px'}; font-weight: 900; color: var(--md-sys-color-primary); white-space: nowrap;">
+                            ${carNum}
+                        </div>
+                        ${specialInfo ? `
+                            <div style="font-size: 11px; font-weight: 700; color: var(--md-sys-color-on-surface); opacity: 0.8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                ${specialInfo.desc}
+                            </div>
+                            <div style="font-size: 9px; font-weight: 500; color: var(--md-sys-color-on-surface-variant); opacity: 0.6; font-family: 'Roboto Mono', monospace;">
+                                ${specialInfo.duration}
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('historyBackBtn').onclick = () => {
+    // 呼叫顯示主列表或地圖的函數，這取決於你的 script.js 中如何定義首頁視圖
+    if (typeof window.renderMainList === 'function') {
+        window.renderMainList(); 
+    } else {
+        // 如果沒有定義特定的返回函數，強制刷新或跳回根路徑
+        location.hash = ""; // 或者使用你 App 定義的切換邏輯
+    }
+};
+        }
+
+        contentArea.classList.remove('page-exit');
+        contentArea.classList.add('page-enter');
+        
+        try {
+            const snapshot = await window.get(window.ref(window.db, `live_reports/${carNum}`));
+            const trainData = snapshot.val();
+            // 強制按時間排序
+            cachedTraces = (trainData?.traces || []).sort((a, b) => a.timestamp - b.timestamp);
+            
+            contentArea.innerHTML = `
+                <div id="calendar-container" style="padding: 8px 0px 4px 0px;">
+                    <div style="background: var(--md-sys-color-surface-container-high); border-radius: 16px; padding: 10px 12px; border: 1px solid var(--md-sys-color-outline-variant);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                            <div id="calMonthYear" style="font-size: 14px; font-weight: 700; color: var(--md-sys-color-on-surface); margin-left: 4px;"></div>
+                            <div style="display: flex; gap: 0px;">
+                                <button id="prevMonth" style="background:none; border:none; color:var(--md-sys-color-on-surface-variant); cursor:pointer; scale: 0.8;" class="material-symbols-rounded">chevron_left</button>
+                                <button id="nextMonth" style="background:none; border:none; color:var(--md-sys-color-on-surface-variant); cursor:pointer; scale: 0.8;" class="material-symbols-rounded">chevron_right</button>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 10px; font-weight: 700; color: var(--md-sys-color-primary); margin-bottom: 4px; opacity: 0.5;">
+                            <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+                        </div>
+                        <div id="calendarGrid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px;"></div>
+                    </div>
+                </div>
+                <div id="historyList" style="padding: 0px 0px 16px 0px;"></div>
+            `;
+
+            const grid = document.getElementById('calendarGrid');
+            const monthLabel = document.getElementById('calMonthYear');
+            const listContainer = document.getElementById('historyList');
+
+            const renderCalendar = () => {
+    grid.innerHTML = '';
+    const year = viewDate.getFullYear();
+    const month = viewDate.getMonth();
+    monthLabel.innerText = `${year}年 ${month + 1}月`;
+    
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    for (let i = 0; i < firstDay; i++) grid.appendChild(document.createElement('div'));
+
+    const sortedTraces = [...cachedTraces].sort((a, b) => a.timestamp - b.timestamp);
+
+    for (let d = 1; d <= daysInMonth; d++) {
+        const dayBtn = document.createElement('div');
+        const isSelected = selectedDate.getDate() === d && selectedDate.getMonth() === month && selectedDate.getFullYear() === year;
+        const isToday = new Date().getDate() === d && new Date().getMonth() === month && new Date().getFullYear() === year;
+        
+        const dStart = new Date(year, month, d).setHours(5, 0, 0, 0);
+        const dEnd = dStart + 86400000 - 1;
+        
+        const dayTraces = sortedTraces.filter(t => t.timestamp >= dStart && t.timestamp <= dEnd);
+        
+        // --- 變陣偵測 ---
+        let isCombinationChanged = false;
+        if (dayTraces.length > 0) {
+            // 1. 同日內是否有不同 FullID
+            const uniqueIds = [...new Set(dayTraces.map(t => String(t.fullId || carNum).trim()))];
+            
+            // 2. 與前一筆紀錄(跨日)對比
+            const firstIdToday = String(dayTraces[0].fullId || carNum).trim();
+            const lastRecBefore = sortedTraces.filter(t => t.timestamp < dStart).slice(-1)[0];
+            const lastIdBefore = lastRecBefore ? String(lastRecBefore.fullId || carNum).trim() : firstIdToday;
+
+            if (uniqueIds.length > 1 || firstIdToday !== lastIdBefore) {
+                isCombinationChanged = true;
+            }
+        }
+
+        const rawRoutes = dayTraces.map(t => t.rteKey).filter(Boolean);
+        const dayRoutes = [...new Set(rawRoutes.flatMap(rte => String(rte).split(/x|\+|\/|&/)))].sort();
+
+        // --- 顏色分配 (修正變量缺失問題) ---
+        let dayNumColor = 'var(--md-sys-color-on-surface)'; // 預設 #1C1B1F
+        
+        if (isSelected) {
+            dayNumColor = 'var(--md-sys-color-on-primary)'; // #FFFFFF
+        } else if (isCombinationChanged) {
+            // 因為你沒定義 tertiary，我們改用一個醒目的顏色
+            // 這裡建議用亮紫色或橙色，確保一眼看出不同
+            dayNumColor = '#f57c00'; // 橘色，這在紫色主題中非常明顯且易讀
+        } else if (isToday) {
+            dayNumColor = 'var(--md-sys-color-primary)'; // #6750A4
+        }
+
+        dayBtn.style.cssText = `
+            min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+            padding: 4px 0; font-size: 13px; font-weight: 800; border-radius: 12px; cursor: pointer;
+            background: ${isSelected ? 'var(--md-sys-color-primary)' : 'transparent'};
+            ${isToday && !isSelected ? `border: 1.2px solid var(--md-sys-color-primary); padding-top: 2.8px;` : ''}
+        `;
+        
+        dayBtn.innerHTML = `
+            <span style="line-height: 1; margin-bottom: 4px; color: ${dayNumColor} !important;">
+                ${d}
+            </span>
+        `;
+        
+        // 下方的 Badge 邏輯保持不變...
+        if (dayRoutes.length > 0) {
+            const badgeWrap = document.createElement('div');
+            badgeWrap.style.cssText = `display: flex; flex-direction: column; gap: 1.5px; align-items: center; width: 100%;`;
+            dayRoutes.slice(0, 2).forEach(rte => {
+                const rColor = window.colorMap ? (window.colorMap[rte] || '#6750A4') : '#6750A4';
+                const badge = document.createElement('div');
+                badge.style.cssText = `font-size: 8px; line-height: 1; padding: 1.5px 3px; border-radius: 3px; font-weight: 900; background: ${rColor}; color: #FFFFFF; min-width: 22px; text-align: center; ${isSelected ? 'box-shadow: 0 0 0 1px var(--md-sys-color-on-primary);' : ''}`;
+                badge.innerText = rte;
+                badgeWrap.appendChild(badge);
+            });
+            dayBtn.appendChild(badgeWrap);
+        }
+        dayBtn.onclick = () => { selectedDate = new Date(year, month, d); renderCalendar(); fetchAndRenderList(); };
+        grid.appendChild(dayBtn);
+    }
+};
+
+            const fetchAndRenderList = () => {
+                const start = new Date(selectedDate).setHours(5,0,0,0);
+                const end = start + 86400000 - 1;
+                const filtered = cachedTraces.filter(t => t.timestamp >= start && t.timestamp <= end).sort((a, b) => b.timestamp - a.timestamp);
+
+                if (filtered.length === 0) {
+                    listContainer.innerHTML = `<div style="text-align:center; padding:60px; opacity:0.5; font-size: 14px;" class="list-fade-in">該日無出車紀錄</div>`;
+                    return;
+                }
+
+                listContainer.innerHTML = '';
+                const routeCfg = { "505": ["三聖", "兆康"], "506P": ["兆康"], "507": ["田景", "屯門碼頭"], "507P": ["屯門碼頭"], "610": ["元朗", "屯門碼頭"], "614": ["元朗", "屯門碼頭"], "614P": ["兆康", "屯門碼頭"], "615": ["元朗", "屯門碼頭"], "615P": ["兆康", "屯門碼頭"], "705": ["天水圍循環綫", "以天水圍為終點站"], "706": ["天水圍循環綫", "以天水圍為終點站"], "720": ["天榮"], "751": ["友愛", "天逸"], "751P": ["天水圍", "天逸"], "751L": ["屯門碼頭"], "761P": ["元朗", "天逸"], "不載客": ["三聖", "屯門碼頭", "田景", "兆康", "元朗", "友愛", "天逸", "天榮", "天水圍", "屯門車廠", "洪天路", "---"], "司機訓練": ["三聖", "屯門碼頭", "田景", "兆康", "元朗", "友愛", "天逸", "天榮", "天水圍", "屯門車廠", "洪天路", "---"], "回廠": ["---"], "專用": ["三聖", "屯門碼頭", "田景", "兆康", "元朗", "友愛", "天逸", "天榮", "天水圍", "屯門車廠", "洪天路", "---"], "屯門專綫": ["屯門"], "元朗專綫": ["天逸"] };
+                const currentConfig = window.specialTrainsConfig || {};
+                
+                let currentGroupId = null;
+                let animationIndex = 0;
+
+                filtered.forEach((record, idx) => {
+                    const recordFullId = record.fullId || String(carNum);
+                    
+                    if (recordFullId !== currentGroupId) {
+                        currentGroupId = recordFullId;
+                        const carNums = recordFullId.split(/[\+\-–]/).map(n => n.trim());
+                        const icon1 = window.getCarIcon ? window.getCarIcon(carNums[0], currentConfig) : "P1R.png";
+                        const icon2 = carNums.length > 1 ? window.getCarIcon(carNums[1], currentConfig) : null;
+
+                        const headerDiv = document.createElement('div');
+                        headerDiv.className = 'list-fade-in';
+                        headerDiv.style.animationDelay = `${animationIndex++ * 25}ms`;
+                        
+                        const isFirstGroup = idx === 0;
+                        headerDiv.style.cssText = `
+                            padding: 2px 0px 6px 15px;
+                            margin-top: ${isFirstGroup ? '0px' : '16px'};
+                            display: flex; align-items: center; justify-content: flex-start; gap: 8px;
+                            background: var(--md-sys-color-surface); opacity: 0.9;
+                        `;
+
+                        headerDiv.innerHTML = `
+                            <div class="train-icon-container" style="display: flex; align-items: center; height: 16px; gap: 4px;">
+                                <img src="${icon1}" style="height: 14px; width: 16px; object-fit: contain;">
+                                ${icon2 ? `<img src="${icon2}" style="height: 14px; width: 16px; object-fit: contain;">` : ''}
+                            </div>
+                            <div style="font-size: 12px; font-weight: 700; color: var(--md-sys-color-on-surface-variant); letter-spacing: 0.2px;">
+                                ${recordFullId}
+                            </div>
+                        `;
+                        listContainer.appendChild(headerDiv);
+                    }
+
+                    const routeColor = window.colorMap ? (window.colorMap[record.rteKey] || '#6750A4') : '#6750A4';
+                    let destination = "---";
+                    if (record.dRte && record.dRte.includes('往')) { destination = record.dRte.split('往')[1].trim(); }
+                    else if (record.dest) { destination = record.dest; }
+                    else if (routeCfg[record.rteKey]) { destination = routeCfg[record.rteKey].join(' / '); }
+
+                    const showDest = destination !== "---";
+                    const fullTimeStr = record.timestamp ? new Date(record.timestamp).toTimeString().split(' ')[0] : (record.tStr || "--:--:--");
+
+                    const cardDiv = document.createElement('div');
+                    cardDiv.className = 'list-fade-in';
+                    cardDiv.style.animationDelay = `${animationIndex++ * 25}ms`;
+
+                    cardDiv.innerHTML = `
+                        <div class="spotting-card" 
+                             style="border-left: 3.5px solid ${routeColor}; padding: 7.5px 12px; border-radius: 10px; margin-bottom: 4px; background: var(--md-sys-color-surface-container-low); display: flex; flex-direction: column;">
+                            <div style="display: flex; align-items: center; gap: 6px; width: 100%; min-width: 0; flex-wrap: nowrap;">
+                                <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                    <span style="background: transparent; border: 1px solid var(--md-sys-color-outline); color: var(--md-sys-color-on-surface-variant); padding: 1px 0; width: 32px; border-radius: 3.5px; font-size: 9.5px; text-align: center; box-sizing: border-box; font-weight: 500; flex-shrink: 0;">
+                                        ${record.rno || '---'}
+                                    </span>
+                                    <span class="route-badge" style="background: ${routeColor}; color: #FFFFFF; padding: 1px 4px; min-width: 34px; width: fit-content; border: 1px solid ${routeColor}; border-radius: 3.5px; font-size: 10.5px; text-align: center; font-weight: 700; box-sizing: border-box; flex-shrink: 0; white-space: nowrap;">
+                                        ${record.rteKey || '---'}
+                                    </span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 5px; min-width: 0; flex: 1;">
+                                    ${showDest ? `
+                                        <div style="font-size: 13.5px; color: var(--md-sys-color-on-surface); font-weight: 700; white-space: nowrap; flex-shrink: 0;">
+                                            ${destination}
+                                        </div>
+                                        <span style="color: var(--md-sys-color-outline-variant); font-size: 9px; opacity: 0.5; flex-shrink: 0;">|</span>
+                                    ` : ''}
+                                    <div style="font-size: 11.5px; color: var(--md-sys-color-on-surface-variant); opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                        ${record.loc || '未知位置'}
+                                    </div>
+                                </div>
+                                <div style="font-size: 9.5px; color: var(--md-sys-color-outline); font-family: 'Roboto Mono', monospace; font-weight: 600; flex-shrink: 0; margin-left: 2px; letter-spacing: -0.2px;">
+                                    ${fullTimeStr}
+                                </div>
+                            </div>
+                            ${record.mem ? `
+                                <div style="font-size: 9.5px; color: var(--md-sys-color-primary); font-weight: 500; margin-top: 3px; text-align: left; width: 100%; display: flex; align-items: center; gap: 4px;">
+                                    <span class="material-symbols-rounded" style="font-size: 12px; opacity: 0.8;">info</span>
+                                    ${record.mem}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                    listContainer.appendChild(cardDiv);
+                });
+            };
+
+            document.getElementById('prevMonth').onclick = () => { viewDate.setMonth(viewDate.getMonth() - 1); renderCalendar(); };
+            document.getElementById('nextMonth').onclick = () => { viewDate.setMonth(viewDate.getMonth() + 1); renderCalendar(); };
+            renderCalendar();
+            fetchAndRenderList();
+        } catch (err) { console.error(err); }
+        requestAnimationFrame(() => contentArea.classList.remove('page-enter'));
     }, 250);
 };
