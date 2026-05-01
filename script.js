@@ -88,7 +88,13 @@ window.db = getDatabase();
     });
 
     async function navigateTo(pageId, title) {
-        contentArea.classList.add('page-exit');
+    // 切換前：如果現在在 ETA 頁面，先把站點 ID 存起來
+    const currentInput = document.getElementById('station_id_input');
+    if (currentInput) {
+        window.lastSelectedStation = currentInput.value;
+    }
+
+    contentArea.classList.add('page-exit');
         headerTitle.innerText = title;
         await new Promise(resolve => setTimeout(resolve, 250));
 
@@ -102,9 +108,11 @@ window.db = getDatabase();
             contentArea.innerHTML = html;
             window.scrollTo(0, 0);
 
-            if (pageId === 'live') {
-                initLivePageLogic();
-            }
+if (pageId === 'live') {
+    initLivePageLogic();
+} else if (pageId === 'eta') {
+    initETAPageLogic(); // 觸發 ETA 邏輯
+}
 
             setTimeout(() => {
                 contentArea.classList.remove('page-enter');
@@ -441,9 +449,6 @@ if (dateInput) {
             triggerListAnimation();
         }
 
-        // script.js
-
-// script.js 內的 triggerListAnimation 函數
 
 function triggerListAnimation() {
     // 增加檢查：如果 liveList 不存在，立即停止執行
@@ -541,7 +546,6 @@ chips.forEach(chip => {
 
         if (e.target.tagName === 'INPUT') return;
 
-        // ❌ 確保這裡「沒有」任何關於 chip.style.background 的代碼
 
         if (pageTitle === '今期閃卡') {
             currentTab = 'special';
@@ -675,20 +679,17 @@ function createTrainCard(data, specialDesc, isOutdated = false, specialConfig = 
 });
 
 
-// 1. 強制移除所有選取邊框與點擊高亮
-// 修改 script.js 末尾的這段代碼
 const disableSelectStyle = document.createElement('style');
 disableSelectStyle.innerHTML = `
     button, input, .nav-filter-btn {
         outline: none !important;
         border: none !important;
         -webkit-tap-highlight-color: transparent !important;
-        background: none !important; /* ✅ 強制所有按鈕無背景 */
+        background: none !important;
     }
     button:focus, input:focus {
         outline: none !important;
     }
-    /* ❌ 刪除或修改原本會變色的 .nav-filter-btn.active 邏輯 */
     .nav-filter-btn.active, .chip.active {
         background: none !important; 
         color: var(--md-sys-color-primary) !important;
@@ -1293,3 +1294,239 @@ window.viewTrainHistory = async (carNum) => {
         requestAnimationFrame(() => contentArea.classList.remove('page-enter'));
     }, 250);
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/// eta ///
+
+
+
+/**
+ * LRSpotter - ETA 頁面邏輯 (純車序匹配版)
+ */
+async function initETAPageLogic() {
+    const etaList = document.getElementById('text');
+    const staIntro = document.getElementById('StaIntro');
+    const stationInput = document.getElementById('station_id_input');
+	const savedStationId = window.lastSelectedStation || "1";
+    
+    if (!etaList) return;
+
+    // 你的站點數據
+const STATIONS_MAP = { 1: "屯門碼頭", 10: "美樂", 15: "蝴蝶", 20: "輕鐵車廠", 30: "龍門", 40: "青山村", 50: "青雲", 60: "建安", 70: "河田", 75: "蔡意橋", 80: "澤豐", 90: "屯門醫院", 100: "兆康", 110: "麒麟", 120: "青松", 130: "建生", 140: "田景", 150: "良景", 160: "新圍", 170: "石排", 180: "山景(北)", 190: "山景(南)", 200: "鳴琴", 212: "大興(北)", 220: "大興(南)", 230: "銀圍", 240: "兆禧", 250: "屯門泳池", 260: "豐景園", 265: "兆麟", 270: "安定", 275: "友愛", 280: "市中心", 295: "屯門", 300: "杯渡", 310: "何福堂", 320: "新墟", 330: "景峰", 340: "鳳地", 350: "藍地", 360: "泥圍", 370: "鍾屋村", 380: "洪水橋", 390: "塘坊村", 400: "屏山", 425: "坑尾村", 430: "天水圍", 435: "天慈", 445: "天耀", 448: "樂湖", 450: "天湖", 455: "銀座", 460: "天瑞", 468: "頌富", 480: "天富", 490: "翠湖", 500: "天榮", 510: "天悅", 520: "天秀", 530: "濕地公園", 540: "天恆", 550: "天逸", 560: "水邊圍", 570: "豐年路", 580: "康樂路", 590: "大棠路", 600: "元朗", 920: "三聖" };
+
+// 切換列表顯示/隱藏
+window.toggleStationList = () => {
+    const modal = document.getElementById('StationListModal');
+    const isShowing = modal.style.display === 'flex';
+    
+    if (!isShowing) {
+        // 開啟時生成內容
+        const content = document.getElementById('StationListContent');
+        content.innerHTML = Object.entries(STATIONS_MAP).map(([id, name]) => `
+            <div onclick="window.selectStation('${id}')" 
+                 style="padding: 14px 16px; margin-bottom: 4px; border-radius: 12px; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: space-between;"
+                 onmouseover="this.style.background='var(--md-sys-color-surface-container-high)'"
+                 onmouseout="this.style.background='none'">
+                <span style="font-weight: 700; color: var(--md-sys-color-on-surface);">${name}</span>
+                <span style="font-family: 'Roboto Mono', monospace; font-size: 12px; opacity: 0.5;">#${id}</span>
+            </div>
+        `).join('');
+        modal.style.display = 'flex';
+    } else {
+        modal.style.display = 'none';
+    }
+};
+
+// 選取車站動作
+window.selectStation = (id) => {
+    const inputEl = document.getElementById('station_id_input');
+    inputEl.value = id;
+    window.updateStationName(id);
+    window.toggleStationList(); // 關閉列表
+    window.refreshETADATA();     // 自動執行搜尋
+};
+
+// 更新左側站名
+window.updateStationName = (id) => {
+    const nameSpan = document.getElementById('StationDisplayName');
+    if (nameSpan) {
+        nameSpan.innerText = STATIONS_MAP[id] || "未知車站";
+    }
+};
+// 清除可能存在的舊定時器，防止記憶體洩漏
+if (window.etaTimer) clearInterval(window.etaTimer);
+
+// 每 30 秒自動抓取一次新數據
+window.etaTimer = setInterval(() => {
+    console.log("自動更新 API 數據...");
+    if (typeof window.refreshETADATA === 'function') {
+        window.refreshETADATA();
+    }
+}, 30000);
+
+
+// 初始化
+window.updateStationName("1");
+
+
+async function getRunOnlyMap() {
+    const runMap = new Map();
+    try {
+        if (!window.db || !window.get) return runMap;
+
+        // --- 核心邏輯：定義今日營運日的 05:00 邊界 ---
+        const now = new Date();
+        const startBoundDate = new Date(now);
+        
+        // 如果現在是凌晨 00:00 ~ 04:59，營運日應屬「前一天」
+        if (now.getHours() < 5) {
+            startBoundDate.setDate(now.getDate() - 1);
+        }
+        startBoundDate.setHours(5, 0, 0, 0); // 設定為該營運日的 05:00:00
+        const startBound = startBoundDate.getTime();
+
+        // 獲取數據
+        const snapshot = await window.get(window.ref(window.db, 'live_reports'));
+
+        if (snapshot.exists()) {
+            const data = snapshot.val();
+            const tempMap = new Map(); // RNO -> { fid: string, ts: number }
+
+            Object.keys(data).forEach(carId => {
+                const report = data[carId];
+                if (report.traces && Array.isArray(report.traces)) {
+                    report.traces.forEach(t => {
+                        // --- 嚴格過濾：必須有車序，且時間戳必須大於或等於今日 05:00 ---
+                        if (t.rno && t.timestamp >= startBound) {
+                            const rnoKey = parseInt(t.rno).toString();
+                            const fid = String(t.fullId || carId);
+                            
+                            const existing = tempMap.get(rnoKey);
+
+                            // 1. 如果該車序還沒紀錄，或是這筆紀錄比現有的更新，則採用
+                            if (!existing || t.timestamp > existing.ts) {
+                                tempMap.set(rnoKey, { fid: fid, ts: t.timestamp });
+                            } 
+                            // 2. 如果時間戳完全相同（處理聯結編組同時上傳的情況）
+                            else if (t.timestamp === existing.ts) {
+                                // 保留資訊較完整的編號（例如 "1001+1066" 長度大於 "1001"）
+                                if (fid.length > existing.fid.length) {
+                                    tempMap.set(rnoKey, { fid: fid, ts: t.timestamp });
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+
+            // 將過濾後的結果轉入 runMap
+            tempMap.forEach((val, rno) => {
+                runMap.set(rno, val.fid);
+            });
+        }
+    } catch (e) { 
+        console.error("Firebase Sync Error (ETA):", e); 
+    }
+    return runMap;
+}
+
+window.refreshETADATA = async () => {
+    const sId = stationInput ? parseInt(stationInput.value) : 1;
+    try {
+        const [apiRes, liveData] = await Promise.all([
+            fetch(`https://lrtapi.lightcatcube.com/api/schedule?station_id=${sId}`).then(r => r.json()),
+            getRunOnlyMap()
+        ]);
+
+        if (staIntro) staIntro.innerHTML = `<div style="font-weight:900; color:var(--md-sys-color-primary); font-size:17px; margin-bottom: 4px;">${STATIONS_MAP[sId] || "車站"}</div>`;
+
+        let html = "";
+        let animationIndex = 0;
+        const specialCfg = window.specialTrainsConfig || {};
+
+        apiRes.platform_list?.forEach(platform => {
+            html += `<div style="padding: 8px 4px 8px 4px; display: flex;"><div style="background: #FFFFFF; color: var(--md-sys-color-on-surface-variant); padding: 4px 12px; border-radius: 8px; font-size: 11px; font-weight: 900; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid var(--md-sys-color-outline-variant);">${platform.platform_id} 號月台</div></div>`;
+
+platform.route_list?.forEach(route => {
+    const routeColor = window.colorMap ? (window.colorMap[route.route_no] || '#6750A4') : '#6750A4';
+    
+    let raw = route.trip_no ? String(route.trip_no) : (route.train_id !== "0" ? String(route.train_id) : "");
+    let runNoRaw = (raw && raw.length > 2) ? raw.substring(0, raw.length - 2) : (raw || "");
+    const isInvalid = !runNoRaw || runNoRaw === "undefined" || runNoRaw === "null";
+    let runDisp = isInvalid ? "---" : runNoRaw.padStart(3, '0');
+    let seqDisp = (raw && raw.length > 2) ? raw.slice(-2) : "01";
+    const cleanRunNo = isInvalid ? "0" : parseInt(runNoRaw).toString();
+    
+    let carNumStr = liveData.get(cleanRunNo) || "";
+    if (!carNumStr && route.train_id && route.train_id !== "0") carNumStr = route.train_id;
+    const carList = carNumStr ? carNumStr.split(/[\+\-–]/).map(s => s.trim()) : [];
+    
+    const apiLength = route.train_length; 
+    const dbLength = carList.length;      
+    const isLengthMismatch = (dbLength > 0 && dbLength !== apiLength);
+    
+    const lengthLabel = `${apiLength}卡`;
+    const mismatchNotice = isLengthMismatch ? 
+        `<span style="font-size: 8px; color: var(--md-sys-color-error); font-weight: 900; background: var(--md-sys-color-error-container); padding: 1px 4px; border-radius: 4px; margin-left: 4px; border: 0.5px solid var(--md-sys-color-error);">!</span>` : "";
+
+    html += `
+    <div class="list-fade-in" style="animation-delay: ${animationIndex++ * 15}ms;">
+        <div class="spotting-card" style="padding: 9px 0; border-radius: 12px; margin-bottom: 6px; background: #FFFFFF; border: 1px solid var(--md-sys-color-outline-variant); border-left: 5.5px solid ${routeColor} !important; display: flex; align-items: center; overflow: hidden;">
+            <div style="display: flex; align-items: center; gap: 6px; width: 100%; padding: 0 8px; box-sizing: border-box;">
+                
+                <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+                    <div style="display: flex; align-items: center; justify-content: center; border: 1px solid var(--md-sys-color-outline); border-radius: 4px; width: 42px; height: 18px; background: #fff;">
+                        <span style="color: var(--md-sys-color-on-surface-variant); font-size: 9px; font-weight: 600;">${runDisp}</span>
+                        <span style="color: var(--md-sys-color-outline); font-size: 8px; opacity: 0.3; margin: 0 1px;">|</span>
+                        <span style="color: var(--md-sys-color-on-surface-variant); font-size: 9px; font-weight: 500;">${seqDisp}</span>
+                    </div>
+                    <span style="background: ${routeColor}; color: #FFFFFF; width: 30px; height: 18px; line-height: 18px; border-radius: 4px; font-size: 10px; text-align: center; font-weight: 900;">${route.route_no}</span>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; flex: 1.5; min-width: 0; overflow: hidden;">
+                    <div style="font-size: clamp(11px, 3.5vw, 13.5px); font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2;">
+                        ${route.dest_ch}${mismatchNotice}
+                    </div>
+                    <div style="font-size: 9px; color: ${isLengthMismatch ? 'var(--md-sys-color-error)' : 'var(--md-sys-color-outline)'}; font-weight: 800; opacity: 0.7;">
+                        ${lengthLabel}
+                    </div>
+                </div>
+                
+                <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 1; justify-content: flex-end; overflow: hidden;">
+                    ${carList.length > 0 ? carList.map((num) => {
+                        const icon = window.getCarIcon ? window.getCarIcon(num, specialCfg) : "P1R.png";
+                        const bgColor = isLengthMismatch ? 'var(--md-sys-color-error-container)' : '#f5f5f5';
+                        return `
+                            <div onclick="window.viewTrainHistory('${num}')" 
+                                 style="display: flex; align-items: center; gap: 2px; background: ${bgColor}; padding: 1.5px 4px; border-radius: 4px; border: 0.5px solid rgba(0,0,0,0.05); cursor: pointer; flex-shrink: 0;">
+                                <img src="${icon}" style="height: 9px; width: 13px; object-fit: contain;">
+                                <span style="font-size: 9px; font-family: 'Roboto Mono', monospace; font-weight: 800;">${num}</span>
+                            </div>`;
+                    }).join('') : '<span style="font-size: 9px; opacity: 0.1;">--</span>'}
+                </div>
+
+                <div style="font-size: 13px; font-weight: 900; width: 58px; flex-shrink: 0; text-align: right; color: ${route.time_ch === '正在抵達' ? 'var(--md-sys-color-error)' : '#000000'};">
+                    ${route.time_ch}
+                </div>
+            </div>
+        </div>
+    </div>`;
+});
+        });
+        etaList.innerHTML = html || `<div style="text-align:center; padding: 60px; opacity: 0.6;">服務已終止</div>`;
+    } catch (error) { console.error("ETA Logic Error:", error); }
+};
+window.refreshETADATA();
+}
