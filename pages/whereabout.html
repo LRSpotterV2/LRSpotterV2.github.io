@@ -1,0 +1,68 @@
+<div class="spotting-card" style="border-left-color: var(--md-sys-color-primary); display: flex; flex-direction: column; gap: 16px; padding: 20px;">
+    
+	
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
+        <div class="nav-icon-bg" style="background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); width: 40px; height: 40px;">
+            <span class="material-symbols-rounded">edit_location_alt</span>
+        </div>
+        <div style="font-size: 18px; font-weight: 700; color: var(--md-sys-color-on-surface);">提交行蹤報告</div>
+    </div>
+
+    <div id="infoBanner" style="display: none; background: #cfe2ff; color: #084298; padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size: 0.85em; border: 1px solid #b6d4fe;"></div>
+
+    <div class="report-form" style="display: flex; flex-direction: column; width: 100%; box-sizing: border-box;">
+        <div class="form-row" style="display: flex; gap: 6px; width: 100%;">
+            <div class="form-group" style="flex: 6.5; display: flex; flex-direction: column;">
+                <label style="font-weight: bold; color: var(--md-sys-color-on-surface-variant); font-size: 13px; margin-bottom: 4px;">車編</label>
+                <input type="text" id="carId" placeholder="1001-1006" style="width: 100%; height: 44px; padding: 0 12px; border: 1px solid var(--md-sys-color-outline-variant); border-radius: 12px; outline: none; box-sizing: border-box; background: var(--md-sys-color-surface-container-highest);">
+            </div>
+            <div class="form-group" style="flex: 3.5; display: flex; flex-direction: column; position: relative;">
+                <label style="font-weight: bold; color: var(--md-sys-color-on-surface-variant); font-size: 13px; margin-bottom: 4px;">車序</label>
+                <input type="text" id="runNo" placeholder="193" oninput="if(typeof checkRunNo === 'function') checkRunNo()" style="width: 100%; height: 44px; padding: 0 12px; border: 1px solid var(--md-sys-color-outline-variant); border-radius: 12px; outline: none; box-sizing: border-box; background: var(--md-sys-color-surface-container-highest);">
+                <div id="runSuggestion" style="position: absolute; top: 100%; left: 0; right: 0; background: #fffbe6; border: 1px solid #ffe58f; border-radius: 8px; padding: 10px; z-index: 50; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 4px;">
+                    <div id="suggestionText" style="font-size: 12px; color: #856404;"></div>
+                    <button id="applyBtn" style="background: #007aff; color: white; border: none; padding: 6px; border-radius: 4px; font-size: 12px; width: 100%; cursor: pointer; margin-top: 5px; font-weight: bold;">套用</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-row" style="display: flex; gap: 8px; width: 100%; align-items: flex-end; margin-top: 12px;">
+            <div class="form-group" style="flex: 3; display: flex; flex-direction: column;">
+                <label style="font-weight: bold; color: var(--md-sys-color-on-surface-variant); font-size: 13px; margin-bottom: 4px;">路綫</label>
+                <select id="routeSelect" onchange="if(typeof onRouteUpdate === 'function') onRouteUpdate()" style="width: 100%; height: 44px; padding: 0 8px; border: 1px solid var(--md-sys-color-outline-variant); border-radius: 12px; background: var(--md-sys-color-surface-container-highest); outline: none;">
+                </select>
+            </div>
+            <div class="form-group" style="flex: 4; display: flex; flex-direction: column;">
+                <label style="font-weight: bold; color: var(--md-sys-color-on-surface-variant); font-size: 13px; margin-bottom: 4px;">往</label>
+                <select id="directionSelect" onchange="if(typeof checkSpecialDestination === 'function') checkSpecialDestination()" style="width: 100%; height: 44px; padding: 0 8px; border: 1px solid var(--md-sys-color-outline-variant); border-radius: 12px; background: var(--md-sys-color-surface-container-highest); outline: none;">
+                </select>
+            </div>
+            <div class="form-group" style="flex: 5; display: flex; flex-direction: column;">
+                <div style="height: 20px; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between;">
+                    <label style="font-weight: bold; color: var(--md-sys-color-on-surface-variant); font-size: 13px; margin: 0;">位置</label>
+                    <span id="gpsBtn" onclick="if(typeof useGPSLocation === 'function') useGPSLocation()" style="cursor: pointer; font-size: 12px; color: var(--md-sys-color-primary); font-weight: 700;">定位</span>
+                </div>
+                <select id="stationSelect" style="width: 100%; height: 44px; padding: 0 8px; border: 1px solid var(--md-sys-color-outline-variant); border-radius: 12px; background: var(--md-sys-color-surface-container-highest); outline: none;">
+                </select>
+                <input type="hidden" id="geoCoords">
+            </div>
+        </div>
+
+        <div class="form-row" style="display: flex; width: 100%; margin-top: 12px;">
+            <div class="form-group" style="flex: 1; display: flex; flex-direction: column;">
+                <div style="display: flex; align-items: center; gap: 8px; width: 100%; margin-bottom: 4px;">
+                    <label style="font-weight: bold; color: var(--md-sys-color-on-surface-variant); font-size: 13px;">備註</label>
+                    <div id="timetable-info" style="text-align: right; font-size: 11px; color: var(--md-sys-color-outline); flex: 1;">
+                        <span id="adminToggleBtn" onclick="toggleAdminTime()" style="display: none; cursor: pointer; margin-right: 10px; font-weight: bold; color: var(--md-sys-color-error);">補錄模式</span>
+                        <span id="timetable-display"></span>
+                    </div>
+                </div>
+                <input type="text" id="memo" placeholder="車務調動、特別班次等" style="width: 100%; height: 44px; padding: 0 12px; border: 1px solid var(--md-sys-color-outline-variant); border-radius: 12px; outline: none; box-sizing: border-box; background: var(--md-sys-color-surface-container-highest);">
+            </div>
+        </div>
+
+        <button id="submitReportBtn" style="background: var(--md-sys-color-primary); color: white; border: none; padding: 16px; border-radius: 100px; font-weight: 700; font-size: 16px; margin-top: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <span class="material-symbols-rounded">send</span> 提交報告
+        </button>
+    </div>
+</div>

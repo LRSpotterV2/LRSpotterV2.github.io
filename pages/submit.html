@@ -1,0 +1,160 @@
+<div class="submit-page-container" style="padding: 16px; animation: m3-entrance 500ms var(--transition-standard) forwards;">
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+        
+        <div style="display: flex; gap: 10px;">
+            <div style="flex: 2;">
+                <label class="m3-field-label">車編</label>
+                <input type="text" id="carId" placeholder="1001-1006" class="m3-filled-input">
+            </div>
+            <div style="flex: 1.25;">
+                <label class="m3-field-label">車序</label>
+                <input type="text" id="runNo" placeholder="193" oninput="window.checkRunNo()" class="m3-filled-input">
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; align-items: flex-end;">
+            <div style="flex: 1;">
+                <label class="m3-field-label">路綫</label>
+                <select id="routeSelect" onchange="window.onRouteUpdate()" class="m3-filled-select"></select>
+            </div>
+            <div style="flex: 1;">
+                <label class="m3-field-label">往</label>
+                <select id="directionSelect" class="m3-filled-select"></select>
+            </div>
+            <div style="flex: 1.25;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <label class="m3-field-label" style="margin-bottom: 0;">位置</label>
+                </div>
+                <select id="stationSelect" class="m3-filled-select"></select>
+            </div>
+        </div>
+
+        <div>
+            <label class="m3-field-label">備註</label>
+            <input type="text" id="memo" placeholder="車務調動、特別班次、改道行駛等" class="m3-filled-input">
+        </div>
+
+        <button onclick="window.submitRecord()" class="m3-fab-extended" style="margin-top: 8px; width: 100%; justify-content: center;">
+            <span class="material-symbols-rounded">send</span>
+            提交行蹤
+        </button>
+    </div>
+</div>
+
+<script>
+// 使用匿名自執行函式或確保在頁面載入時初始化
+(function() {
+    const routeSelect = document.getElementById('routeSelect');
+    if (!routeSelect) return;
+
+    // 清空並填充路綫 (引用 script.js 中的 routeCfg)
+    routeSelect.innerHTML = '<option value="">選擇</option>';
+    Object.keys(routeCfg).forEach(route => {
+        const opt = document.createElement('option');
+        opt.value = route;
+        opt.textContent = route;
+        routeSelect.appendChild(opt);
+    });
+
+    // 定義連動邏輯
+    window.onRouteUpdate = function() {
+        const route = routeSelect.value;
+        const directionSelect = document.getElementById('directionSelect');
+        const stationSelect = document.getElementById('stationSelect');
+
+        // 1. 重置選單
+        directionSelect.innerHTML = '<option value="">目的地</option>';
+        stationSelect.innerHTML = '<option value="">車站</option>';
+
+        if (!route) return;
+
+        // 2. 自動更新「往」：引用 script.js 中的 routeCfg
+        if (routeCfg[route]) {
+            routeCfg[route].forEach(dest => {
+                const opt = document.createElement('option');
+                opt.value = dest;
+                opt.textContent = dest;
+                directionSelect.appendChild(opt);
+            });
+        }
+
+        // 3. 自動更新「位置」：從 stationDB 篩選有經過該路綫的車站
+        // 如果是特殊狀態（不載客/回廠等），則顯示所有車站
+        const isSpecial = ["不載客", "司機訓練", "回廠", "專用"].includes(route);
+        const filteredStations = isSpecial 
+            ? stationDB 
+            : stationDB.filter(s => s.r.includes(route));
+
+        filteredStations.forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s.zh;
+            opt.textContent = s.zh;
+            stationSelect.appendChild(opt);
+        });
+    };
+})();
+</script>
+
+<style>
+    .m3-field-label {
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--md-sys-color-primary);
+        margin-bottom: 6px;
+        margin-left: 4px;
+        white-space: nowrap;
+    }
+
+    .m3-filled-input, .m3-filled-select {
+        width: 100%;
+        height: 48px;
+        background-color: var(--md-sys-color-surface-container-variant, var(--md-sys-color-surface-variant));
+        border: none;
+        border-bottom: 1px solid var(--md-sys-color-outline);
+        border-radius: 8px 8px 0 0;
+        padding: 0 10px;
+        font-size: 16px; /* 防止自動縮放 */
+        color: var(--md-sys-color-on-surface);
+        box-sizing: border-box;
+        transition: border-bottom 0.2s var(--transition-standard);
+    }
+
+    .m3-filled-input:focus, .m3-filled-select:focus {
+        outline: none;
+        border-bottom: 2px solid var(--md-sys-color-primary);
+    }
+
+    .m3-embedded-gps-btn {
+        position: absolute;
+        right: 4px;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--md-sys-color-secondary-container);
+        color: var(--md-sys-color-on-secondary-container);
+        border-radius: 8px;
+        cursor: pointer;
+        z-index: 2;
+    }
+
+    .m3-fab-extended {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        width: 100%;
+        height: 52px;
+        margin-top: 8px;
+        background: var(--md-sys-color-primary);
+        color: var(--md-sys-color-on-primary);
+        border: none;
+        border-radius: 16px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+</style>
