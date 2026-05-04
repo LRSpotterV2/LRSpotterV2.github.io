@@ -82,38 +82,37 @@ window.routeConfig = {
         color: "#00A551",
         dest: ["田景", "屯門碼頭"],
         isSingleDirection: false,
-        0: [1, 230, 240, 250, 260, 265, 270, 280, 295, 70, 75, 230, 220, 212, 160, 150, 140]
+		0: [140, 150, 160, 212, 220, 230, 75, 70, 295, 200, 270, 265, 260, 250, 240, 1]
     },
     "610": {
         color: "#541B15",
         dest: ["元朗", "屯門碼頭"],
         isSingleDirection: false,
-        0: [1, 10, 15, 20, 30, 40, 50, 200, 170, 212, 220, 230, 80, 90, 100, 350, 360, 370, 380, 390, 400, 560, 570, 580, 590, 600]
+		0: [600, 590, 580, 570, 560, 400, 390, 380, 370, 360, 350, 100, 90, 80, 230, 220, 212, 170, 200, 50, 40, 30, 20, 15, 10, 1]
     },
     "614": {
         color: "#00C0F3",
         dest: ["元朗", "屯門碼頭"],
         isSingleDirection: false,
-        0: [1, 240, 250, 260, 265, 270, 280, 300, 310, 320, 330, 340, 100, 350, 360, 370, 380, 390, 400, 560, 570, 580, 590, 600]
+		0: [600, 590, 580, 570, 560, 400, 390, 380, 370, 360, 350, 100, 340, 330, 320, 310, 300, 280, 270, 265, 260, 250, 240, 1]
     },
     "614P": {
         color: "#F2858E",
         dest: ["兆康", "屯門碼頭"],
         isSingleDirection: false,
-        0: [1, 240, 250, 260, 265, 270, 280, 300, 310, 320, 330, 340, 100]
+		0: [100, 340, 330, 320, 310, 300, 280, 270, 265, 260, 250, 240, 1]
     },
     "615": {
         color: "#FFDD00",
         dest: ["元朗", "屯門碼頭"],
         isSingleDirection: false,
-        0: [1, 10, 15, 20, 30, 40, 50, 200, 170, 160, 150, 140, 130, 120, 100, 350, 360, 370, 380, 390, 400, 560, 570, 580, 590, 600]
+		0: [600, 590, 580, 570, 560, 400, 390, 380, 370, 360, 350, 100, 120, 130, 140, 150, 160, 170, 200, 50, 40, 30, 20, 15, 10, 1]
     },
     "615P": {
         color: "#006585",
         dest: ["兆康", "屯門碼頭"],
         isSingleDirection: false,
-        0: [1, 10, 15, 20, 30, 40, 50, 200, 170, 160, 150, 140, 130, 120, 110, 100],
-        1: [100, 120, 130, 140, 150, 160, 170, 200, 50, 40, 30, 20, 15, 10, 1]
+        0: [100, 110, 120, 130, 140, 150, 160, 170, 200, 50, 40, 30, 20, 15, 10, 1]
     },
     "705": {
         color: "#6EBF45",
@@ -143,20 +142,31 @@ window.routeConfig = {
 		isSpecialDeparture: true, 
         isSchoolHolidayAvailable: true,
 		specialdescription: "到達河田後改行507綫途經屯門前往屯門碼頭",
-        0: [550, 480, 468, 490, 500, 455, 450, 435, 430, 425, 380, 370, 360, 350, 100, 90, 80, 75, 70, 295, 280, 270, 265, 260, 250, 240, 1]
+		RunNumber: ["903"],
+        0: [550, 480, 468, 490, 500, 455, 450, 435, 430, 425, 380, 370, 360, 350, 100, 90, 80, 75, 70, 295, 280, 270, 265, 260, 250, 240, 1],
+		scheduledDepartures: {
+            "550": ["0716"],
+            "500": ["0726"],
+            "430": ["0732"],
+            "425": ["0736"],
+            "100": ["0747"],
+			"070": ["0754"],
+			"295": ["0756"],
+			"1": ["0811"],
+		}
     },	
     "751P": {
         color: "#000000",
         dest: ["天水圍", "天逸"],
         isSingleDirection: false,
 		isSpecialDeparture: true, 
-        0: [550, 480, 468, 490, 500, 455, 450, 435, 430],
+		0: [430, 435, 450, 455, 500, 490, 468, 480, 550]
     },
     "761P": {
         color: "#6E2C91",
         dest: ["元朗", "天逸"],
         isSingleDirection: false,
-        0: [550, 480, 468, 460, 448, 445, 425, 390, 400, 560, 570, 580, 590, 600]
+		0: [600, 590, 580, 570, 560, 400, 390, 425, 445, 448, 460, 468, 480, 550]
     },
     "506P": {
         color: "#000000",
@@ -164,8 +174,17 @@ window.routeConfig = {
         isSingleDirection: true,
 		isSpecialDeparture: true, 
         isSchoolHolidayAvailable: false,
+		RunNumber: ["904", "905"],
 		specialdescription: "途經龍門、屯門、杯渡、景峰前往兆康",
-        0: [1, 10, 15, 20, 30, 40, 50, 60, 295, 300, 310, 320, 330, 340, 100]
+        0: [1, 10, 15, 20, 30, 40, 50, 60, 295, 300, 310, 320, 330, 340, 100],
+		scheduledDepartures: {
+            "1": ["0720", "0735"],
+            "30": ["0727", "0742"],
+            "50": ["0730", "0745"],
+            "295": ["0735", "0750"],
+            "330": ["0741", "0756"],
+			"100": ["0746", "0801"],
+		}
     },
     "507P": {
         color: "#00A551",
@@ -173,8 +192,17 @@ window.routeConfig = {
         isSingleDirection: true,
 		isSpecialDeparture: true, 
         isSchoolHolidayAvailable: true,
+		RunNumber: "902",
 		specialdescription: "途經青松、建生、田景往屯門碼頭",
-        0: [100, 120, 130, 140, 150, 160, 212, 220, 230, 75, 70, 295, 280, 270, 265, 260, 250, 240, 230, 1]
+        0: [100, 120, 130, 140, 150, 160, 212, 220, 230, 75, 70, 295, 280, 270, 265, 260, 250, 240, 1],
+		scheduledDepartures: {
+            "100": ["0742"],
+            "140": ["0749"],
+            "220": ["0757"],
+            "295": ["0804"],
+            "280": ["0806"],
+			"1": ["0819"],
+		}
     },
     "720": {
         color: "#000000",
@@ -182,8 +210,17 @@ window.routeConfig = {
         isSingleDirection: true,
 		isSpecialDeparture: true, 
         isSchoolHolidayAvailable: false,
+		RunNumber: "904",
 		specialdescription: "到達天榮站後改為751P前往天水圍",
-        0: [100, 350, 360, 370, 380, 425, 445, 448, 460, 490, 500]
+        0: [100, 350, 360, 370, 380, 425, 445, 448, 460, 490, 500],
+		scheduledDepartures: {
+            "100": ["0746"],
+            "425": ["0757"],
+            "445": ["0800"],
+            "460": ["0804"],
+            "490": ["0807"],
+			"500": ["0810"]
+		}
     },
     "不載客": {
         color: "#000000",
@@ -212,8 +249,19 @@ window.routeConfig = {
         dest: ["屯門碼頭", "天逸"],
         isSingleDirection: true,
 		isSpecialDeparture: true, 
+		RunNumber: "901",
 		specialdescription: "到達兆康站後改為615前往屯門碼頭",
-        0: [550, 480, 468, 490, 500, 455, 450, 435, 430, 425, 380, 370, 360, 350, 100, 120, 130, 140, 150, 160, 170, 200, 50, 40, 30, 20, 15, 10, 1]
+        0: [550, 480, 468, 490, 500, 455, 450, 435, 430, 425, 380, 370, 360, 350, 100, 120, 130, 140, 150, 160, 170, 200, 50, 40, 30, 20, 15, 10, 1],
+		scheduledDepartures: {
+            "550": ["0652"],
+            "500": ["0702"],
+            "430": ["0708"],
+            "425": ["0712"],
+            "100": ["0723"],
+			"140": ["0731"],
+			"20": ["0744"],
+			"1": ["0750"]
+		}
     }
 };
 	
@@ -1492,7 +1540,7 @@ window.onRouteUpdate = () => {
 
     runNoInput.addEventListener('input', window.checkRunNo);
 
-    // 初始填充路綫
+// 初始填充路綫
     routeSelect.innerHTML = ''; 
     Object.keys(window.routeCfg).sort().forEach(rte => {
         const opt = document.createElement('option');
@@ -1500,6 +1548,34 @@ window.onRouteUpdate = () => {
         routeSelect.appendChild(opt);
     });
     window.onRouteUpdate();
+
+    // --- 執行自動填充 (從 ETA 卡片點擊傳入) ---
+    if (window.pendingSubmitData) {
+        const data = window.pendingSubmitData;
+        
+        if (data.runNo) runNoInput.value = data.runNo;
+        
+        if (data.route) {
+            routeSelect.value = data.route;
+            window.onRouteUpdate(); // 更新目的地與車站清單
+        }
+        
+        if (data.dest) directionSelect.value = data.dest;
+        
+        if (data.stationId && window.stationConfig) {
+            const station = window.stationConfig.find(s => String(s.id) === String(data.stationId));
+            if (station) {
+                stationSelect.value = station.zh;
+            }
+        }
+        
+        setTimeout(() => {
+            const carIdInput = document.getElementById('carId');
+            if(carIdInput) carIdInput.focus();
+        }, 150);
+        
+        window.pendingSubmitData = null; // 清除暫存
+    }
 
     // --- 4. 提交邏輯 ---
     window.submitRecord = async () => {
@@ -1971,83 +2047,26 @@ async function initETAPageLogic() {
     
     if (!etaList) return;
 
-    // 1. 初始化月台摺疊狀態物件
     if (window.etaCollapseStates === undefined) window.etaCollapseStates = {};
 
-    // 2. 動態注入動畫與旋轉樣式
     if (!document.getElementById('eta-page-styles')) {
         const style = document.createElement('style');
         style.id = 'eta-page-styles';
         style.innerHTML = `
-            @keyframes eta-blink-effect {
-                0% { opacity: 1; }
-                50% { opacity: 0.25; }
-                100% { opacity: 1; }
+            @keyframes eta-blink-effect { 0% { opacity: 1; } 50% { opacity: 0.25; } 100% { opacity: 1; } }
+            .eta-flashing { animation: eta-blink-effect 1.2s infinite ease-in-out !important; }
+            @keyframes eta-unfold-anim { 
+                0% { opacity: 0; transform: perspective(1000px) rotateX(-45deg); transform-origin: top; }
+                100% { opacity: 1; transform: perspective(1000px) rotateX(0deg); transform-origin: top; }
             }
-            .eta-flashing {
-                animation: eta-blink-effect 1.2s infinite ease-in-out !important;
-            }
-
-            @keyframes eta-unfold-anim {
-                0% { 
-                    opacity: 0; 
-                    transform: perspective(1000px) rotateX(-45deg);
-                    transform-origin: top;
-                }
-                100% { 
-                    opacity: 1; 
-                    transform: perspective(1000px) rotateX(0deg);
-                    transform-origin: top;
-                }
-            }
-            
-            .list-unfold {
-                animation: eta-unfold-anim 0.45s cubic-bezier(0.23, 1, 0.32, 1) forwards;
-                opacity: 0;
-                backface-visibility: hidden;
-            }
-
-            .collapse-btn-active {
-                /* 移除紫色，改為與 surface 一致 */
-                background: var(--md-sys-color-surface) !important;
-                color: var(--md-sys-color-on-surface) !important;
-                border: 1px solid var(--md-sys-color-outline) !important;
-            }
-
-            /* 箭頭旋轉動畫 */
-            .eta-collapse-icon {
-                display: inline-block;
-                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                font-size: 20px;
-                line-height: 1;
-            }
-            
-            /* 當展開時（isPlatformCollapsed 為 false），旋轉 180 度指向上方 */
-            .eta-icon-rotated {
-                transform: rotate(180deg);
-            }
-
-            .eta-collapse-btn {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                min-width: 44px;
-                height: 26px;
-                padding: 0 8px;
-                border-radius: 8px;
-                cursor: pointer;
-                transition: all 0.2s;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-                border: 1px solid var(--md-sys-color-surface-variant);
-                background: var(--md-sys-color-surface);
-                -webkit-tap-highlight-color: transparent;
-            }
+            .list-unfold { animation: eta-unfold-anim 0.45s cubic-bezier(0.23, 1, 0.32, 1) forwards; opacity: 0; backface-visibility: hidden; }
+            .collapse-btn-active { background: var(--md-sys-color-surface) !important; color: var(--md-sys-color-on-surface) !important; border: 1px solid var(--md-sys-color-outline) !important; }
+            .eta-collapse-icon { display: inline-block; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-size: 20px; line-height: 1; }
+            .eta-icon-rotated { transform: rotate(180deg); }
+            .eta-collapse-btn { display: flex; align-items: center; justify-content: center; min-width: 44px; height: 26px; padding: 0 8px; border-radius: 8px; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid var(--md-sys-color-surface-variant); background: var(--md-sys-color-surface); -webkit-tap-highlight-color: transparent; }
         `;
         document.head.appendChild(style);
     }
-
-    const stationCfg = { 1: "屯門碼頭", 10: "美樂", 15: "蝴蝶", 20: "輕鐵車廠", 30: "龍門", 40: "青山村", 50: "青雲", 60: "建安", 70: "河田", 75: "蔡意橋", 80: "澤豐", 90: "屯門醫院", 100: "兆康", 110: "麒麟", 120: "青松", 130: "建生", 140: "田景", 150: "良景", 160: "新圍", 170: "石排", 180: "山景(北)", 190: "山景(南)", 200: "鳴琴", 212: "大興(北)", 220: "大興(南)", 230: "銀圍", 240: "兆禧", 250: "屯門泳池", 260: "豐景園", 265: "兆麟", 270: "安定", 275: "友愛", 280: "市中心", 295: "屯門", 300: "杯渡", 310: "何福堂", 320: "新墟", 330: "景峰", 340: "鳳地", 350: "藍地", 360: "泥圍", 370: "鍾屋村", 380: "洪水橋", 390: "塘坊村", 400: "屏山", 425: "坑尾村", 430: "天水圍", 435: "天慈", 445: "天耀", 448: "樂湖", 450: "天湖", 455: "銀座", 460: "天營", 468: "頌富", 480: "天富", 490: "翠湖", 500: "天榮", 510: "天悅", 520: "天秀", 530: "濕地公園", 540: "天恆", 550: "天逸", 560: "水邊圍", 570: "豐年路", 580: "康樂路", 590: "大棠路", 600: "元朗", 920: "三聖" };
-    window.stationCfg = stationCfg;
 
     let forceRefreshAnimation = false;
 
@@ -2088,7 +2107,6 @@ async function initETAPageLogic() {
     }
 
     window.toggleETACollapse = (pId) => {
-        // 預設是 true (摺疊)
         const currentState = window.etaCollapseStates[pId] !== false;
         window.etaCollapseStates[pId] = !currentState;
         forceRefreshAnimation = true; 
@@ -2100,8 +2118,9 @@ async function initETAPageLogic() {
         const sId = parseInt(rawId) || 1;
 
         try {
-            const [apiRes, liveData] = await Promise.all([
-                fetch(`https://lrtapi.lightcatcube.com/api/schedule?station_id=${sId}`).then(r => r.json()),
+            const [cubeRes, govRes, liveData] = await Promise.all([
+                fetch(`https://lrtapi.lightcatcube.com/api/schedule?station_id=${sId}`).then(r => r.json()).catch(() => ({})),
+                fetch(`https://rt.data.gov.hk/v1/transport/mtr/lrt/getSchedule?station_id=${sId}&with_special=1`).then(r => r.json()).catch(() => ({})),
                 getRunOnlyMap()
             ]);
 
@@ -2115,16 +2134,69 @@ async function initETAPageLogic() {
             const specialCfg = window.specialTrainsConfig || {};
             const animClass = forceRefreshAnimation ? 'list-unfold' : '';
 
-            apiRes.platform_list?.forEach(platform => {
-                const pId = platform.platform_id;
-                const routes = platform.route_list || [];
-                const hasRoutes = routes.length > 0;
-                
-                // 檢查是否有重複路綫，若無重複則不需要顯示按鈕
-                const routeNos = routes.map(r => r.route_no);
-                const hasRepeatingInfo = new Set(routeNos).size !== routeNos.length;
+            const cubePlatforms = cubeRes?.platform_list || [];
+            const govPlatforms = govRes?.platform_list || [];
 
-                // 若無重複資訊，強制設為展開狀態 (false)
+            cubePlatforms.forEach(platform => {
+                const pId = platform.platform_id;
+                const cubeRoutes = platform.route_list || [];
+                
+                const existingRunNos = new Set();
+                cubeRoutes.forEach(r => {
+                    let tripStr = r.trip_no ? String(r.trip_no) : "";
+                    let runNo = (tripStr.length > 2) ? tripStr.substring(0, tripStr.length - 2) : tripStr;
+                    if (runNo) existingRunNos.add(parseInt(runNo, 10).toString());
+                });
+
+                const govPlatform = govPlatforms.find(p => p.platform_id === pId);
+                const extraSpecialRoutes = [];
+                
+                if (govPlatform && govPlatform.route_list) {
+                    govPlatform.route_list.forEach(g => {
+                        const isOfficialSpecial = g.special === 1;
+                        if (isOfficialSpecial && !existingRunNos.has(parseInt(g.route_no, 10).toString())) {
+                            extraSpecialRoutes.push({
+                                ...g,
+                                isOfficialSpecial: true,
+                                // 優化處：保留原始 9xx 編號以便後續對接 Firebase
+                                gov_run_no: g.route_no, 
+                                route_no: g.additionalInfo1 || "SPR", 
+                                official_remark: g.routeRemarkChi2
+                            });
+                        }
+                    });
+                }
+
+                const combinedRoutes = [
+    ...cubeRoutes.map(r => ({ ...r, isOfficialSpecial: false })),
+    ...extraSpecialRoutes
+].sort((a, b) => {
+    const parseTimeToWeight = (timeStr) => {
+        if (!timeStr || timeStr === '-') return -1; // 正在抵達/即將抵達 最優先
+        if (timeStr === '正在抵達') return -1;
+        if (timeStr === '即將抵達') return 0;
+        if (timeStr === '正在離開') return 0.5; // 正在離開排在即將抵達之後
+        
+        // 提取數字（分鐘）
+        const mins = parseInt(timeStr);
+        return isNaN(mins) ? 999 : mins; 
+    };
+
+    const weightA = parseTimeToWeight(a.time_ch);
+    const weightB = parseTimeToWeight(b.time_ch);
+
+    // 1. 優先按分鐘時間排序
+    if (weightA !== weightB) {
+        return weightA - weightB;
+    }
+
+    // 2. 如果時間相同，則按路線編號排序 (可選，增加穩定性)
+    return a.route_no.localeCompare(b.route_no);
+});
+
+                const hasRoutes = combinedRoutes.length > 0;
+                const routeNos = combinedRoutes.map(r => r.route_no);
+                const hasRepeatingInfo = new Set(routeNos).size !== routeNos.length;
                 const isPlatformCollapsed = hasRepeatingInfo ? (window.etaCollapseStates[pId] !== false) : false;
 
                 nextHtml += `
@@ -2135,8 +2207,7 @@ async function initETAPageLogic() {
                         </div>
                         ${hasRoutes && hasRepeatingInfo ? `
                             <div onclick="window.toggleETACollapse('${pId}')" class="eta-collapse-btn ${!isPlatformCollapsed ? 'collapse-btn-active' : ''}">
-                                <span class="material-symbols-rounded eta-collapse-icon ${!isPlatformCollapsed ? 'eta-icon-rotated' : ''}" 
-                                      style="opacity: 0.4;">
+                                <span class="material-symbols-rounded eta-collapse-icon ${!isPlatformCollapsed ? 'eta-icon-rotated' : ''}" style="opacity: 0.4;">
                                     expand_more
                                 </span>
                             </div>
@@ -2148,88 +2219,145 @@ async function initETAPageLogic() {
 
                 if (hasRoutes) {
                     const renderedRoutes = new Set();
-                    routes.forEach(route => {
-                        if (isPlatformCollapsed) {
-                            if (renderedRoutes.has(route.route_no)) return;
-                            renderedRoutes.add(route.route_no);
-                        }
+                    combinedRoutes.forEach(route => {
+    if (isPlatformCollapsed) {
+        if (renderedRoutes.has(route.route_no)) return;
+        renderedRoutes.add(route.route_no);
+    }
 
-                        const routeColor = window.colorMap ? (window.colorMap[route.route_no] || 'var(--md-sys-color-primary)') : 'var(--md-sys-color-primary)';
-                        let raw = route.trip_no ? String(route.trip_no) : (route.train_id !== "0" ? String(route.train_id) : "");
-                        let runNoRaw = (raw && raw.length > 2) ? raw.substring(0, raw.length - 2) : (raw || "");
-                        let runDisp = (!runNoRaw || runNoRaw === "undefined") ? "---" : runNoRaw.padStart(3, '0');
-                        let seqDisp = (raw && raw.length > 2) ? raw.slice(-2) : "01";
-                        const cleanRunNo = runNoRaw ? parseInt(runNoRaw, 10).toString() : "0";
-                        let carNumStr = liveData.get(cleanRunNo) || (route.train_id !== "0" ? route.train_id : "");
-                        const carList = carNumStr ? carNumStr.split(/[\+\-–]/).map(s => s.trim()) : [];
-                        const isLengthMismatch = (carList.length > 0 && carList.length !== route.train_length);
-                        const isArrivingNow = route.time_ch === '正在抵達';
-                        const isSoonOrLeaving = (route.time_ch === '即將抵達' || route.time_ch === '正在離開');
-                        const timeColor = isArrivingNow ? '#B3261E' : (isSoonOrLeaving ? 'var(--md-sys-color-outline)' : 'var(--md-sys-color-on-surface)');
-                        const flashClass = (isArrivingNow || isSoonOrLeaving) ? 'eta-flashing' : '';
+// --- 這裡開始修改邏輯 ---
+    let cleanRunNo = "0";
+    let runDisp = "---";
+    let seqDisp = "01";
+    let displayRouteNo = route.route_no; 
+    let finalRouteKey = route.route_no; // 用於查找 Config 的 Key
 
-                        nextHtml += `
-                        <div class="${animClass}" style="animation-delay: ${animationIndex++ * 20}ms;">
-                            <div class="spotting-card" style="padding: 9px 0; border-radius: 12px; margin-bottom: 6px; border: 1px solid var(--md-sys-color-surface-variant); border-left: 5.5px solid ${routeColor} !important; display: flex; align-items: center; overflow: hidden;">
-                                <div style="display: flex; align-items: center; gap: 6px; width: 100%; padding: 0 8px; box-sizing: border-box;">
-                                    <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
-                                        <div style="display: flex; align-items: center; justify-content: center; border: 1px solid var(--md-sys-color-outline); border-radius: 4px; width: 42px; height: 18px;">
-                                            <span style="color: var(--md-sys-color-on-surface-variant); font-size: 9px; font-weight: 600;">${runDisp}</span>
-                                            <span style="color: var(--md-sys-color-outline); font-size: 8px; opacity: 0.3; margin: 0 1px;">|</span>
-                                            <span style="color: var(--md-sys-color-on-surface-variant); font-size: 9px; font-weight: 500;">${seqDisp}</span>
-                                        </div>
-                                        <span style="background: ${routeColor}; color: var(--md-sys-color-on-primary); width: 30px; height: 18px; line-height: 18px; border-radius: 4px; font-size: 10px; text-align: center; font-weight: 900;">${route.route_no}</span>
-                                    </div>
-                                    <div style="display: flex; flex-direction: column; flex: 1.5; min-width: 0; overflow: hidden;">
-                                        <div style="font-size: clamp(11px, 3.5vw, 13.5px); font-weight: 900; color: var(--md-sys-color-on-surface); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2;">${route.dest_ch}</div>
-                                        <div style="display: flex; align-items: center; font-size: 9px; color: ${isLengthMismatch ? '#f57c00' : 'var(--md-sys-color-on-surface-variant)'}; font-weight: 800; opacity: 0.7; height: 9px;">
-                                            ${isLengthMismatch ? `<span style="display: inline-flex; align-items: center; justify-content: center; width: 9px; height: 9px; border: 0.8px solid #f57c00; border-radius: 50%; font-size: 6px; color: #f57c00; font-weight: 900; margin-right: 3px; flex-shrink: 0; box-sizing: border-box; line-height: 1; padding-top: 0.5px;">!</span>` : ''}
-                                            <span style="line-height: 9px;">${route.train_length}卡</span>
-                                        </div>
-                                    </div>
-                                    <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 1; justify-content: flex-end; overflow: hidden;">
-                                        ${carList.length > 0 ? carList.map((num) => {
-    const icon = window.getCarIcon ? window.getCarIcon(num, specialCfg) : "P1R.png";
-    return `
-        <div onclick="
-            event.stopPropagation(); 
-            // 1. 設定返回動作：回到當前的 ETA 頁面（假設你的渲染函數是 renderETAPage）
-            window.historyBackAction = () => {
-                if (window.renderETAPage) {
-                    window.renderETAPage();
-                } else {
-                    // 如果沒有專門的渲染函數，則使用通用導航
-                    if (window.navigateTo) window.navigateTo('eta', 'ETA');
-                }
-            };
-            // 2. 清除列表上下文，確保返回邏輯精確
-            window.currentPhaseContext = null; 
-            window.viewTrainHistory('${num}');
-        " 
-        style="display: flex; align-items: center; gap: 2px; padding: 1.5px 4px; border-radius: 4px; border: 0.5px solid rgba(0,0,0,0.05); cursor: pointer;">
-            <img src="${icon}" style="height: 9px; width: 13px; object-fit: contain;">
-            <span style="font-size: 9px; font-family: 'Roboto Mono', monospace; font-weight: 800; color: var(--md-sys-color-on-surface);">${num}</span>
-        </div>`;
-}).join('') : '<span style="font-size: 9px; opacity: 0.2;">--</span>'}
-                                    </div>
-                                    <div class="${flashClass}" style="font-size: 13px; font-weight: 900; width: 58px; flex-shrink: 0; text-align: right; color: ${timeColor};">
-                                        ${route.time_ch}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>`;
+    if (route.isOfficialSpecial) {
+        const rno = route.gov_run_no || "";
+        cleanRunNo = parseInt(rno, 10).toString();
+        runDisp = rno.toString().padStart(3, '0');
+        seqDisp = "SP"; 
+
+        // 根據你提供的實例與 RouteConfig 匹配
+        if (rno === "902") {
+            finalRouteKey = "507P";
+        } else if (rno === "901") {
+            finalRouteKey = "特別車";
+        } else if (rno === "903") {
+            finalRouteKey = "751L";
+        } else if (route.additionalInfo1) {
+            finalRouteKey = route.additionalInfo1.replace(/[\*\s]/g, '');
+        }
+        
+        // UI 顯示
+        displayRouteNo = finalRouteKey;
+    } else {
+        const trip = route.trip_no ? String(route.trip_no) : "";
+        const rnoRaw = (trip.length > 2) ? trip.substring(0, trip.length - 2) : trip;
+        cleanRunNo = rnoRaw ? parseInt(rnoRaw, 10).toString() : "0";
+        runDisp = rnoRaw ? rnoRaw.padStart(3, '0') : "---";
+        seqDisp = trip.slice(-2) || "01";
+        finalRouteKey = route.route_no;
+    }
+
+    // 動態獲取顏色與配置
+    const cfg = window.routeConfig ? window.routeConfig[finalRouteKey] : null;
+    const routeColor = (cfg && cfg.color) 
+        ? cfg.color 
+        : (window.colorMap ? (window.colorMap[route.route_no] || 'var(--md-sys-color-primary)') : 'var(--md-sys-color-primary)');
+
+    // --- 修改目的地顯示邏輯：優先取 Config 的第一個站名 ---
+    let displayDest = route.dest_ch;
+
+    // 只有當這班車是「官方特別班次」且存在對應 Config 時，才執行強行覆蓋
+    if (route.isOfficialSpecial && cfg && cfg.dest && Array.isArray(cfg.dest) && cfg.dest.length > 0) {
+        // 特別車：強行使用 Config 裡定義的第一個站名 (例如 902 強行顯示 507P 的目的地)
+        displayDest = cfg.dest[0];
+    } else {
+        // 普通班次 (Special: 0)：直接信任 API 的方向，不進行強行覆蓋
+        // 這樣 615P 就會根據實際行駛方向顯示「屯門碼頭」或「兆康」
+        displayDest = route.dest_ch;
+    }
+
+    // 匹配實體車號
+    let carNumStr = liveData.get(cleanRunNo) || (route.train_id && route.train_id !== "0" ? route.train_id : "");
+    const carList = carNumStr ? carNumStr.split(/[\+\-–]/).map(s => s.trim()) : [];
+    const isLengthMismatch = (carList.length > 0 && carList.length !== route.train_length);
+    const isArrivingNow = (route.time_ch === '正在抵達' || route.time_ch === '-');
+    const isSoonOrLeaving = (route.time_ch === '即將抵達' || route.time_ch === '正在離開');
+    const timeColor = isArrivingNow ? 'var(--md-sys-color-outline)' : (isSoonOrLeaving ? 'var(--md-sys-color-outline)' : 'var(--md-sys-color-on-surface)');
+    const flashClass = (isArrivingNow || isSoonOrLeaving) ? 'eta-flashing' : '';
+
+    nextHtml += `
+    <div class="${animClass}" style="animation-delay: ${animationIndex++ * 20}ms;">
+        <div class="spotting-card" 
+             onclick="window.pendingSubmitData = { 
+                runNo: '${runDisp}', 
+                route: '${finalRouteKey}', 
+                dest: '${displayDest}', 
+                stationId: '${sId}' 
+             }; window.navigateTo('submit', '提交行蹤'); setTimeout(() => { if (typeof initSubmitPageLogic === 'function') initSubmitPageLogic(); }, 50);" 
+             style="padding: 9px 0; border-radius: 12px; margin-bottom: 6px; border: 1px solid var(--md-sys-color-surface-variant); border-left: 5.5px solid ${routeColor} !important; display: flex; flex-direction: column; overflow: hidden; cursor: pointer;">
+            
+            <div style="display: flex; align-items: center; gap: 6px; width: 100%; padding: 0 8px; box-sizing: border-box;">
+                <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+                    <div style="display: flex; align-items: center; justify-content: center; border: 1px solid var(--md-sys-color-outline); border-radius: 4px; width: 42px; height: 18px;">
+                        <span style="color: var(--md-sys-color-on-surface-variant); font-size: 9px; font-weight: 600;">${runDisp}</span>
+                        <span style="color: var(--md-sys-color-outline); font-size: 8px; opacity: 0.3; margin: 0 1px;">|</span>
+                        <span style="color: var(--md-sys-color-on-surface-variant); font-size: 9px; font-weight: 500;">${seqDisp}</span>
+                    </div>
+                    
+                    <span style="background: ${routeColor}; color: white; min-width: 35px; max-width: 35px;}; height: 18px; line-height: 18px; border-radius: 4px; font-size: 10px; text-align: center; font-weight: 900;">
+                        ${displayRouteNo}
+                    </span>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; flex: 1.5; min-width: 0; overflow: hidden;">
+                    <div style="font-size: clamp(11px, 3.5vw, 13.5px); font-weight: 900; color: var(--md-sys-color-on-surface); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2;">${displayDest}</div>
+                    <div style="display: flex; align-items: center; font-size: 9px; color: ${isLengthMismatch ? '#f57c00' : 'var(--md-sys-color-on-surface-variant)'}; font-weight: 800; opacity: 0.7; height: 9px;">
+                        ${isLengthMismatch ? `<span style="display: inline-flex; align-items: center; justify-content: center; width: 9px; height: 9px; border: 0.8px solid #f57c00; border-radius: 50%; font-size: 6px; color: #f57c00; font-weight: 900; margin-right: 3px; flex-shrink: 0; box-sizing: border-box; line-height: 1; padding-top: 0.5px;">!</span>` : ''}
+                        <span style="line-height: 9px;">${route.train_length}卡</span>
+                    </div>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 1; justify-content: flex-end; overflow: hidden;">
+                    ${carList.length > 0 ? carList.map((num) => {
+                        const icon = window.getCarIcon ? window.getCarIcon(num) : "P1R.png";
+                        return `
+                            <div onclick="event.stopPropagation(); window.historyBackAction = () => { if (window.renderETAPage) window.renderETAPage(); else if (window.navigateTo) window.navigateTo('eta', 'ETA'); }; window.viewTrainHistory('${num}');" style="display: flex; align-items: center; gap: 2px; padding: 1.5px 4px; border-radius: 4px; border: 0.5px solid rgba(0,0,0,0.05); cursor: pointer;">
+                                <img src="${icon}" style="height: 9px; width: 13px; object-fit: contain;">
+                                <span style="font-size: 9px; font-family: 'Roboto Mono', monospace; font-weight: 800; color: var(--md-sys-color-on-surface);">${num}</span>
+                            </div>`;
+                    }).join('') : '<span style="font-size: 9px; opacity: 0.2;">--</span>'}
+                </div>
+
+                <div class="${flashClass}" style="font-size: 13px; font-weight: 900; width: 58px; flex-shrink: 0; text-align: right; color: ${timeColor};">
+                    ${route.time_ch}
+                </div>
+            </div>
+
+            ${route.official_remark ? `
+                <div style="margin: 4px 8px 0 8px; padding: 4px 8px; background: var(--md-sys-color-surface-container); border-radius: 6px; font-size: 9px; font-weight: 700; line-height: 1.3; display: flex; align-items: flex-start; gap: 4px;">
+                    <span class="material-symbols-rounded" style="font-size: 11px;">info</span>
+                    ${route.official_remark}
+                </div>
+            ` : ''}
+        </div>
+    </div>`;
                     });
                 }
             });
 
             const finalHtml = nextHtml || `<div style="text-align:center; padding: 60px; opacity: 0.6; color: var(--md-sys-color-on-surface-variant);">查無資料</div>`;
-
             if (forceRefreshAnimation || etaList.innerHTML !== finalHtml) {
                 etaList.innerHTML = finalHtml;
                 forceRefreshAnimation = false; 
             }
             
-        } catch (error) { console.error("ETA API Error:", error); }
+        } catch (error) { 
+            console.error("ETA API Error:", error);
+            if (etaList) etaList.innerHTML = `<div style="text-align:center; padding: 60px; opacity: 0.6;">數據更新失敗</div>`;
+        }
     }
 
     if (stationSelect) {
@@ -2363,7 +2491,9 @@ window.initRoutesPageLogic = function() {
 
 
 
-// Route Detail //
+
+// Route ED
+	
 let currentUpdateId = 0;
 window.viewRouteDetail = async (routeId) => {
     const contentArea = document.getElementById('app-content');
@@ -2375,7 +2505,7 @@ window.viewRouteDetail = async (routeId) => {
     const routeColor = window.colorMap[routeId] || 'var(--md-sys-color-primary)';
     const routeDest = window.routeCfg[routeId] || ["終點", "終點"];
     
-    let currentDir = 0;
+    const currentDir = 0; 
 
     const getRunOnlyMap = async () => {
         const runMap = new Map();
@@ -2429,13 +2559,20 @@ window.viewRouteDetail = async (routeId) => {
             headerTitle.style.minWidth = '0px';
             headerTitle.style.padding = '0px';
 
-            const isCircular = routeConfigData && routeConfigData.isCircularDirection;
-            const prefix = isCircular ? '' : '往 ';
+            const currentRouteCfg = window.routeConfig[routeId];
+            const specialDesc = (currentRouteCfg && currentRouteCfg.specialdescription) ? currentRouteCfg.specialdescription : "";
 
-            // 先取得對應路線的配置
-const currentRouteCfg = window.routeConfig[routeId];
-// 取得特殊描述，若無則留空或設定預設值
-const specialDesc = (currentRouteCfg && currentRouteCfg.specialdescription) ? currentRouteCfg.specialdescription : "";
+let displayDests = "全線車站列表";
+if (currentRouteCfg) {
+    if (currentRouteCfg.isSingleDirection && !currentRouteCfg.isCircularDirection && currentRouteCfg.dest && currentRouteCfg.dest.length >= 2) {
+        // 純單向路綫：起點 → 目的地
+        displayDests = `${currentRouteCfg.dest[1]} → ${currentRouteCfg.dest[0]}`;
+    } else {
+        // 常規雙向或循環線
+        const destArray = (window.routeCfg[routeId] || []).filter(d => d !== "以天水圍為終點站");
+        displayDests = destArray.length > 0 ? destArray.join(' ⇌ ') : "全線車站列表";
+    }
+}
 
 headerTitle.innerHTML = `
     <span class="material-symbols-rounded" style="cursor: pointer; padding: 4px; margin-left: -4px; opacity: 0.8; flex-shrink: 0;" id="phaseDetailBackBtn">
@@ -2445,17 +2582,12 @@ headerTitle.innerHTML = `
         <div style="background: ${routeColor}; color: white; font-weight: 900; font-size: 13px; padding: 3px 8px; border-radius: 6px; flex-shrink: 0; line-height: 1.2;">
             ${routeId}
         </div>
-        
         <div style="display: flex; flex-direction: column; min-width: 0; justify-content: center; line-height: 1.2;">
-            <div id="dirToggleArea" style="display: flex; align-items: center; gap: 4px; cursor: pointer; min-width: 0; user-select: none;">
+            <div id="dirToggleArea" style="display: flex; align-items: center; gap: 4px; min-width: 0; user-select: none;">
                 <span id="dirDisplay" style="font-size: 15px; font-weight: 800; color: var(--md-sys-color-on-surface); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                    ${prefix}${routeDest[0]}
-                </span>
-                <span class="material-symbols-rounded" id="swapIcon" style="font-size: 18px; color: var(--md-sys-color-on-surface); opacity: 0.7; flex-shrink: 0;">
-                    swap_vert
+                    ${displayDests} 
                 </span>
             </div>
-            
             ${specialDesc ? `
             <div style="font-size: 11px; font-weight: 700; color: var(--md-sys-color-on-surface); opacity: 0.55; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px;">
                 ${specialDesc}
@@ -2468,27 +2600,22 @@ headerTitle.innerHTML = `
                 const btn = Array.from(document.querySelectorAll('.nav-item')).find(el => el.getAttribute('data-page') === 'routes');
                 if (btn) btn.click();
             };
-
-            const toggleArea = document.getElementById('dirToggleArea');
-            if (toggleArea) {
-                toggleArea.onclick = () => {
-                    if (routeConfigData && routeConfigData.isSingleDirection) return;
-                    currentDir = currentDir === 0 ? 1 : 0;
-                    renderStationList();
-                };
-            }
         }
 
         contentArea.innerHTML = `
-            <div style="padding: 0px 0;">
-                <div id="service-status-banner" style="display: none; margin: 0 16px 12px 16px; background: var(--md-sys-color-error-container); color: var(--md-sys-color-on-error-container); border-radius: 16px; align-items: center; gap: 10px; animation: tagFadeIn 0.5s ease forwards;">
-                    <span class="material-symbols-rounded" style="font-size: 20px;">info</span>
-                    <span id="service-status-text" style="font-size: 13px; font-weight: 700;">暫時無法提供相關資料</span>
-                </div>
+            <div style="padding: 0px; width: 100%; box-sizing: border-box;">
+                <div class="glass-effect" style="margin: 0 16px 20px 16px; width: calc(100% - 32px); border-radius: 28px; background: var(--md-sys-color-surface-container-lowest); border: 1px solid var(--md-sys-color-outline-variant); position: relative; overflow: hidden; box-sizing: border-box;">
+                    
+                    <div id="service-status-banner" style="display: none; width: 100%; background: var(--md-sys-color-error-container); color: var(--md-sys-color-on-error-container); padding: 0px 16px; align-items: center; gap: 10px; animation: tagFadeIn 0.5s ease forwards; box-sizing: border-box; border-bottom: 1px solid var(--md-sys-color-outline-variant);">
+                        <span class="material-symbols-rounded" style="font-size: 20px;">info</span>
+                        <span id="service-status-text" style="font-size: 13px; font-weight: 700;">暫時無法提供相關資料</span>
+                    </div>
 
-                <div class="glass-effect" style="margin-bottom: 20px; border-radius: 28px; background: var(--md-sys-color-surface-container-lowest); border: 1px solid var(--md-sys-color-outline-variant); position: relative; overflow: hidden;">
-                    <div id="map-scroll-area" style="max-height: calc(100vh - 200px); overflow-y: auto; scrollbar-width: none; position: relative;">
-                        <div id="static-track" style="position: absolute; width: 8px; background: ${routeColor}; opacity: 1; left: 30%; transform: translateX(-50%); z-index: 1; border-radius: 4px;"></div>
+                    <div id="main-route-area" style="position: relative; width: 100%; overflow: hidden; ">
+                        <div id="track-container" style="position: absolute; left: 50%; transform: translateX(-50%); display: flex; gap: 90px; z-index: 1;">
+                            <div id="static-track-opp" style="width: 8px; background: ${routeColor}; opacity: 1; border-radius: 4px;"></div>
+                            <div id="static-track-main" style="width: 8px; background: ${routeColor}; opacity: 1; border-radius: 4px;"></div>
+                        </div>
                         <div id="route-stations-container" style="position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; z-index: 2; background: transparent;"></div>
                     </div>
                 </div>
@@ -2496,142 +2623,311 @@ headerTitle.innerHTML = `
         `;
 
         const renderStationList = () => {
-    const container = document.getElementById('route-stations-container');
-    const track = document.getElementById('static-track');
-    const dirLabel = document.getElementById('dirDisplay');
-    const swapIcon = document.getElementById('swapIcon');
-    if (!container || !track) return;
+            const container = document.getElementById('route-stations-container');
+            const trackContainer = document.getElementById('track-container');
+            if (!container || !trackContainer) return;
 
-    const routeConfig = window.routeConfig[routeId];
-    if (!routeConfig) return;
+            const routeConfig = window.routeConfig[routeId];
+            if (!routeConfig) return;
 
-    let order = routeConfig.isSingleDirection ? routeConfig[0] : (currentDir === 0 ? routeConfig[0] : (routeConfig[1] || [...routeConfig[0]].reverse()));
-    
-    if (swapIcon) swapIcon.style.display = routeConfig.isSingleDirection ? 'none' : 'block';
-    if (dirLabel) dirLabel.innerText = `${routeConfig.isCircularDirection ? '' : '往 '}${routeDest[currentDir]}`;
+            const dir0 = (routeConfig[0] || []).map(id => String(id));
+            let dir1 = [];
+            if (routeConfig.isSingleDirection) {
+                dir1 = []; 
+            } else {
+                dir1 = routeConfig[1] ? routeConfig[1].map(id => String(id)) : [...dir0];
+            }
 
-    const stations = order.map(id => window.stationConfig.find(s => String(s.id) === String(id))).filter(Boolean);
-    
-    container.innerHTML = stations.map((stn, index) => {
-        const isFirst = index === 0;
-        const isLast = index === stations.length - 1;
-        const rowHeight = (isFirst || isLast) ? '60px' : '110px';
-        const alignItems = isFirst ? 'flex-start' : (isLast ? 'flex-end' : 'center');
-        const dotOffset = (isFirst || isLast) ? '25px' : '50%';
-        const positionKey = isFirst ? 'top' : (isLast ? 'bottom' : 'top');
+            const routeColor = window.colorMap[routeId] || 'var(--md-sys-color-primary)';
+            const isSingle = routeConfig.isSingleDirection;
 
-        return `
-<div class="station-row" 
-     data-stn-id="${stn.id}" 
-     data-index="${index}" 
-     data-total="${stations.length}" 
-     style="position: relative; width: 100%; height: ${rowHeight}; display: flex; justify-content: center; align-items: ${alignItems}; z-index: 2; overflow: visible; box-sizing: border-box; ${isFirst ? 'padding-top: 25px;' : (isLast ? 'padding-bottom: 25px;' : '')}">
-    
-    <div style="position: absolute; left: 20px; display: flex; flex-direction: column; ${positionKey}: ${dotOffset}; transform: translateY(${isFirst ? '-50%' : (isLast ? '50%' : '-50%')});">
-        <span style="font-size: 13px; font-weight: 800; color: var(--md-sys-color-on-surface); opacity: 0.8; line-height: 1.2;">
-            ${stn.zh}
-        </span>
-        <span style="font-size: 10px; font-weight: 500; color: var(--md-sys-color-on-surface); opacity: 0.45; letter-spacing: 0.5px; margin-top: 1px;">
-            ${stn.id}
-        </span>
-    </div>
-    
-    <div style="position: absolute; left: 30%; ${positionKey}: ${dotOffset}; transform: translate(-50%, ${isFirst ? '-50%' : (isLast ? '50%' : '-50%')}); width: 12px; height: 12px; background: white; border: 3px solid ${routeColor}; border-radius: 50%; z-index: 5; box-shadow: 0 0 0 4px var(--md-sys-color-surface-container-lowest);"></div>
-    
-    <div class="train-slot" style="position: absolute; left: calc(30% + 16px); ${positionKey}: ${dotOffset}; width: 185px; height: 0; display: flex; align-items: center; pointer-events: none; z-index: 10; overflow: visible;"></div>
-</div>        `;
-    }).join('');
+            const allStns = Array.from(new Set([...dir0, ...dir1]));
+            
+            const adj = {};
+            const inDegree = {};
+            allStns.forEach(id => {
+                adj[id] = new Set();
+                inDegree[id] = 0;
+            });
 
-    if (stations.length > 0) {
-        const dotFromEdge = 25;
-        const rowHeightShort = 60;
-        const rowHeightLong = 110;
-        track.style.top = `${dotFromEdge}px`;
-        track.style.left = '30%';
-        track.style.transform = 'translateX(-50%)';
-        const totalHeight = (stations.length > 1) ? (rowHeightShort * 2 + (stations.length - 2) * rowHeightLong) : rowHeightShort;
-        track.style.height = `${totalHeight - (dotFromEdge * 2)}px`;
+            const addEdge = (u, v) => {
+                if (!adj[u].has(v)) {
+                    adj[u].add(v);
+                    inDegree[v]++;
+                }
+            };
+
+            let processedDir0 = [...dir0];
+            const common = dir0.filter(id => dir1.includes(id));
+            if (common.length >= 2 && dir1.length > 0) {
+                const d1First = dir1.indexOf(common[0]);
+                const d1Last = dir1.indexOf(common[common.length - 1]);
+                const d0First = dir0.indexOf(common[0]);
+                const d0Last = dir0.indexOf(common[common.length - 1]);
+                if ((d1First < d1Last) !== (d0First < d0Last)) {
+                    processedDir0.reverse();
+                }
+            }
+
+            [processedDir0, dir1].forEach(path => {
+                for (let i = 0; i < path.length - 1; i++) {
+                    addEdge(path[i], path[i + 1]);
+                }
+            });
+
+            const queue = allStns.filter(id => inDegree[id] === 0);
+            if (queue.length === 0 && allStns.length > 0) queue.push(allStns[0]);
+            
+            const finalOrder = [];
+            while (queue.length > 0) {
+                queue.sort((a, b) => {
+                    const weightA = dir1.length > 0 ? dir1.indexOf(a) : dir0.indexOf(a);
+                    const weightB = dir1.length > 0 ? dir1.indexOf(b) : dir0.indexOf(b);
+                    const wA = weightA !== -1 ? weightA : 999;
+                    const wB = weightB !== -1 ? weightB : 999;
+                    return wA - wB;
+                });
+                const u = queue.shift();
+                finalOrder.push(u);
+                if (adj[u]) {
+                    adj[u].forEach(v => {
+                        inDegree[v]--;
+                        if (inDegree[v] === 0) queue.push(v);
+                    });
+                }
+            }
+
+            const stations = finalOrder.map(id => window.stationConfig.find(s => String(s.id) === id)).filter(Boolean);
+            
+            container.innerHTML = stations.map((stn, index) => {
+                const stnIdStr = String(stn.id);
+                const showMainDot = dir0.includes(stnIdStr);
+                const showOppDot = dir1.includes(stnIdStr);
+
+                let timeText = "";
+                if (routeConfig.scheduledDepartures && routeConfig.scheduledDepartures[stn.id]) {
+                    timeText = routeConfig.scheduledDepartures[stn.id].map(t => t.slice(0, 2) + ":" + t.slice(2)).join(" / "); 
+                }
+
+                const infoStyle = isSingle 
+                    ? `left: 20px; top: 50%; transform: translateY(-50%); align-items: flex-start;` 
+                    : `left: 50%; top: 50%; transform: translate(-50%, -50%); align-items: center;`;
+                
+                const mainDotLeft = isSingle ? `50%` : `calc(50% - 49px)`;
+                const mainSlotCSS = isSingle 
+                    ? `left: calc(50% + 20px); justify-content: flex-start;` 
+                    : `left: calc(50% + 60px); justify-content: flex-start;`;
+
+                const oppSlotCSS = `right: calc(50% + 60px); justify-content: flex-end;`;
+
+                return `
+                <div class="station-row" data-stn-id="${stn.id}" data-index="${index}" data-total="${stations.length}" 
+                     style="position: relative; width: 100%; height: 110px; display: flex; justify-content: center; align-items: center; z-index: 2;">
+                    
+                    <div style="position: absolute; ${infoStyle} display: flex; flex-direction: column; z-index: 10; width: 110px; pointer-events: none;">
+                        <span style="display: inline-block; font-size: 13px; font-weight: 800; color: var(--md-sys-color-on-surface); opacity: 0.95; line-height: 1; white-space: nowrap; margin-bottom: 28px; background: var(--md-sys-color-surface-container-lowest); border-radius: 4px; width: fit-content; text-align: ${isSingle ? 'left' : 'center'};">
+                            ${stn.zh}
+                        </span>
+                        <div style="display: flex; flex-direction: column; align-items: ${isSingle ? 'flex-start' : 'center'}; gap: 1px; margin-top: -24px; width: 100%;">
+                            <span style="font-size: 9px; font-weight: 600; color: var(--md-sys-color-on-surface); opacity: 0.4; text-align: ${isSingle ? 'left' : 'center'}; width: 100%;">${stn.id}</span>
+                            ${timeText ? `
+                                <div style="display: flex; align-items: center; gap: 2px; width: 100%; justify-content: ${isSingle ? 'flex-start' : 'center'};">
+                                    <span class="material-symbols-rounded" style="font-size: 10px; opacity: 0.3;">schedule</span>
+                                    <span style="font-size: 9px; font-weight: 700; color: var(--md-sys-color-on-surface); opacity: 0.5;">${timeText}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    
+                    ${(showOppDot && !isSingle) ? `
+                        <div style="position: absolute; left: calc(50% + 49px); top: 50%; transform: translate(-50%, -50%); width: 12px; height: 12px; background: white; border: 3px solid ${routeColor}; border-radius: 50%; z-index: 5; box-shadow: 0 0 0 4px var(--md-sys-color-surface-container-lowest);"></div>
+                    ` : ''}
+
+                    ${showMainDot ? `
+                        <div style="position: absolute; left: ${mainDotLeft}; top: 50%; transform: translate(-50%, -50%); width: 12px; height: 12px; background: white; border: 3px solid ${routeColor}; border-radius: 50%; z-index: 5; box-shadow: 0 0 0 4px var(--md-sys-color-surface-container-lowest);"></div>
+                    ` : ''}
+                    
+                    <div class="train-slot-main" style="position: absolute; ${mainSlotCSS} top: 50%; width: 120px; height: 0; display: flex; align-items: center; pointer-events: none; z-index: 10;"></div>
+                    
+                    ${!isSingle ? `
+                        <div class="train-slot-opp" style="position: absolute; ${oppSlotCSS} top: 50%; width: 120px; height: 0; display: flex; align-items: center; pointer-events: none; z-index: 10;"></div>
+                    ` : ''}
+                </div>`;
+            }).join('');
+
+if (stations.length > 0) {
+    const lines = trackContainer.querySelectorAll('div');
+    if (lines.length >= 2) {
+        if (isSingle) {
+            lines[0].style.left = '50%';
+            lines[1].style.display = 'none';
+        } else {
+            lines[0].style.left = 'calc(50% - 49px)';
+            lines[1].style.left = 'calc(50% + 49px)';
+            lines[1].style.display = 'block';
+        }
     }
     
-    updateTrains();
-};
+    // 重點：將軌道起點設在第一個 station-row 的中心 (110px / 2 = 55px)
+    trackContainer.style.top = '55px'; 
+    // 重點：長度應為 (總站數 - 1) * 110px，這樣線條剛好終止於最後一站的圓心
+    trackContainer.style.height = `${(stations.length - 1) * 110}px`;
+}
+            updateTrains();
+        };
 
 const updateTrains = async () => {
     const liveData = await getRunOnlyMap();
     const specialCfg = window.specialTrainsConfig || {};
     const rows = Array.from(document.querySelectorAll('.station-row'));
-    const banner = document.getElementById('service-status-banner');
-    const bannerTextEl = document.getElementById('service-status-text');
     if (!rows.length) return;
 
-    const targetDest = routeDest[currentDir]; 
-    const oppDest = routeDest[currentDir === 0 ? 1 : 0];
+    const routeConfig = window.routeConfig[routeId];
+    const isSingle = routeConfig ? routeConfig.isSingleDirection : false;
+    const dest0 = routeDest[0];
+    const dest1 = routeDest[1];
 
+    // 1. Duo API Fetching: 每一站同時抓取 Cube 與 Gov API (包含特別班次)
     const fetchPromises = rows.map(row => {
         const stnId = row.getAttribute('data-stn-id');
-        return fetch(`https://lrtapi.lightcatcube.com/api/schedule?station_id=${stnId}`)
-            .then(r => r.json())
-            .catch(() => null);
+        return Promise.all([
+            fetch(`https://lrtapi.lightcatcube.com/api/schedule?station_id=${stnId}`).then(r => r.json()).catch(() => ({})),
+            fetch(`https://rt.data.gov.hk/v1/transport/mtr/lrt/getSchedule?station_id=${stnId}&with_special=1`).then(r => r.json()).catch(() => ({}))
+        ]);
     });
 
-    const allResults = await Promise.all(fetchPromises);
-    const bestTrainsMap = new Map(); 
+    const allStationResults = await Promise.all(fetchPromises);
+    const mainTrainsMap = new Map();
+    const oppTrainsMap = new Map();
+    const processedRuns = new Set();
 
     rows.forEach((row, idx) => {
-        const res = allResults[idx];
-        if (!res || !res.platform_list) return;
-
+        const [cubeRes, govRes] = allStationResults[idx];
         const stnId = row.getAttribute('data-stn-id');
         const rowIndex = parseInt(row.getAttribute('data-index'));
         const totalRows = parseInt(row.getAttribute('data-total'));
 
-        res.platform_list.forEach(plat => {
-            if (!plat.route_list) return;
-            plat.route_list.forEach(rt => {
-                if (String(rt.route_no) !== String(routeId)) return;
+        // 2. 獲取 Cube API 已有的跑號清單，避免重複
+        const cubeRunNos = new Set();
+        (cubeRes.platform_list || []).forEach(p => {
+            (p.route_list || []).forEach(r => {
+                if (String(r.route_no) !== String(routeId)) return;
+                let trip = r.trip_no ? String(r.trip_no) : "";
+                let runNo = (trip.length > 2) ? trip.substring(0, trip.length - 2) : trip;
+                if (runNo) cubeRunNos.add(parseInt(runNo, 10).toString());
+            });
+        });
 
-                const apiDest = rt.dest_ch || "";
-                let shouldShow = false;
-                if (rowIndex === 0) {
-                    if (apiDest.includes(targetDest)) shouldShow = true;
-                } else if (rowIndex === totalRows - 1) {
-                    if (apiDest.includes(targetDest) || apiDest.includes(oppDest)) shouldShow = true;
-                } else {
-                    if (apiDest.includes(targetDest)) shouldShow = true;
-                }
-                if (!shouldShow) return;
-
-                let raw = rt.trip_no ? String(rt.trip_no) : (rt.train_id !== "0" ? String(rt.train_id) : "");
-                let runNoRaw = (raw && raw.length > 2) ? raw.substring(0, raw.length - 2) : (raw || "");
-                const cleanRunNo = runNoRaw ? parseInt(runNoRaw, 10).toString() : "";
-
-                let etaVal = 999;
-                const timeCh = rt.time_ch || "";
-                if (timeCh.includes('即將抵達') || timeCh.includes('抵達')) etaVal = 0;
-                else if (timeCh.includes('離開') || timeCh === "-") etaVal = -1;
-                else {
-                    const m = timeCh.match(/\d+/);
-                    if (m) etaVal = parseInt(m[0]);
-                }
-
-                const trackKey = cleanRunNo || `ID-${rt.train_id}`;
-                const existing = bestTrainsMap.get(trackKey);
-                if (!existing || etaVal < existing.etaVal) {
-                    bestTrainsMap.set(trackKey, { rt, stnId, rowIndex, totalRows, runNoRaw, cleanRunNo, etaVal });
+        // 3. 合併數據源：Cube 正常班次 + Gov 特別班次
+        const combinedRoutes = [];
+        
+        // 加入 Cube 數據
+        (cubeRes.platform_list || []).forEach(p => {
+            (p.route_list || []).forEach(r => {
+                if (String(r.route_no) === String(routeId)) {
+                    combinedRoutes.push({ ...r, isOfficialSpecial: false });
                 }
             });
         });
+
+(govRes.platform_list || []).forEach(p => {
+    (p.route_list || []).forEach(g => {
+        const isSpec = g.special === 1;
+        if (!isSpec) return;
+
+        const govRunNo = parseInt(g.route_no, 10).toString(); // 例如 "903"
+        if (cubeRunNos.has(govRunNo)) return;
+
+        // --- 鏈接邏輯開始 ---
+        let isMatch = false;
+
+        // 方法 A: 檢查 additionalInfo1 (原有的標籤匹配)
+        const matchedRoute = g.additionalInfo1 ? g.additionalInfo1.replace(/[\*\s]/g, '') : "";
+        if (matchedRoute === String(routeId)) {
+            isMatch = true;
+        }
+
+        // 方法 B: 檢查 routeConfig 裡的 RunNumber 陣列 (針對 751L / 903 這種情況)
+        if (!isMatch && routeConfig && routeConfig.RunNumber) {
+            if (routeConfig.RunNumber.includes(govRunNo)) {
+                isMatch = true;
+            }
+        }
+
+        if (isMatch) {
+            combinedRoutes.push({
+                ...g,
+                isOfficialSpecial: true,
+                // 強制將路線編號改為當前 routeId，確保 UI 顯示正確 (例如顯示 751L 而不是 SPR)
+                route_no: routeId, 
+                trip_no: govRunNo + "01", 
+                dest_ch: g.dest_ch
+            });
+        }
+    });
+});
+
+        // 4. 方向判斷與 Map 填寫
+        combinedRoutes.forEach(rt => {
+            const apiDest = rt.dest_ch || "";
+            let isMain = false, isOpp = false;
+
+            if (isSingle) {
+                isMain = apiDest.includes(dest0);
+                isOpp = false;
+            } else {
+                isMain = apiDest.includes(dest1);
+                isOpp = apiDest.includes(dest0);
+            }
+
+            if (!isMain && !isOpp) return;
+
+            let raw = rt.trip_no ? String(rt.trip_no) : (rt.train_id !== "0" ? String(rt.train_id) : "");
+            let runNoRaw = (raw && raw.length > 2) ? raw.substring(0, raw.length - 2) : (raw || "");
+            const cleanRunNo = runNoRaw ? parseInt(runNoRaw, 10).toString() : "";
+            const trackKey = cleanRunNo || `ID-${rt.train_id}`;
+
+            if (processedRuns.has(trackKey)) return;
+
+            let etaVal = 999;
+            const timeCh = rt.time_ch || "";
+            if (timeCh.includes('即將抵達') || timeCh.includes('抵達')) etaVal = 0;
+            else if (timeCh.includes('離開') || timeCh === "-") etaVal = -1;
+            else {
+                const m = timeCh.match(/\d+/);
+                if (m) etaVal = parseInt(m[0]);
+            }
+
+            const trainData = { rt, stnId, rowIndex, totalRows, runNoRaw, cleanRunNo, etaVal };
+
+            if (isMain) {
+                const existing = mainTrainsMap.get(trackKey);
+                if (!existing || etaVal < existing.etaVal) {
+                    mainTrainsMap.set(trackKey, trainData);
+                }
+            } else {
+                const existing = oppTrainsMap.get(trackKey);
+                if (!existing || etaVal < existing.etaVal) {
+                    oppTrainsMap.set(trackKey, trainData);
+                }
+            }
+        });
     });
 
-    // --- 根據有無列車及路線配置顯示橫幅 ---
+    // 標記所有已處理的跑號
+    mainTrainsMap.forEach((_, key) => processedRuns.add(key));
+    oppTrainsMap.forEach((_, key) => processedRuns.add(key));
+
+    const hasTrains = (mainTrainsMap.size > 0 || oppTrainsMap.size > 0);
+    const banner = document.getElementById('service-status-banner');
+    const bannerTextEl = document.getElementById('service-status-text');
+
     if (banner && bannerTextEl) {
-        const isSpecial = routeConfigData && routeConfigData.isSpecialDeparture;
-        const isSchoolHoliday = routeConfigData && routeConfigData.isSchoolHolidayAvailable;
+        const isSpecial = routeConfig && routeConfig.isSpecialDeparture;
+        const isSchoolHoliday = routeConfig && routeConfig.isSchoolHolidayAvailable;
 
         if (isSpecial) {
             banner.style.display = 'flex';
-            
-            // 判斷特定路綫與假期配置
             if (String(routeId) === '751P') {
                 bannerTextEl.innerText = "本路綫只於平日繁忙時段按需求提供服務";
             } else if (!isSchoolHoliday) {
@@ -2639,99 +2935,79 @@ const updateTrains = async () => {
             } else {
                 bannerTextEl.innerText = "本路綫只於平日及學校假期上午繁忙時段提供服務";
             }
-            
-            banner.style.background = (bestTrainsMap.size > 0) ? 'var(--md-sys-color-secondary-container)' : 'var(--md-sys-color-error-container)';
-            banner.style.color = (bestTrainsMap.size > 0) ? 'var(--md-sys-color-on-secondary-container)' : 'var(--md-sys-color-on-error-container)';
+
+            banner.style.background ='var(--md-sys-color-error-container)';
+            banner.style.color =  'var(--md-sys-color-on-error-container)';
         } else {
-            bannerTextEl.innerText = "是日列車服務尚未開始或已經終止";
-            banner.style.display = (bestTrainsMap.size === 0) ? 'flex' : 'none';
-            banner.style.background = 'var(--md-sys-color-error-container)';
-            banner.style.color = 'var(--md-sys-color-on-error-container)';
+            if (!hasTrains) {
+                banner.style.display = 'flex';
+                bannerTextEl.innerText = "是日列車服務已經終止";
+                banner.style.background = 'var(--md-sys-color-error-container)';
+                banner.style.color = 'var(--md-sys-color-on-error-container)';
+            } else {
+                banner.style.display = 'none';
         }
     }
+}
 
-    const stationHtmlBuffer = {};
 
-    bestTrainsMap.forEach(train => {
-        const { rt, stnId, rowIndex, totalRows, runNoRaw, cleanRunNo } = train;
-        
-        let firebaseId = (cleanRunNo && liveData.has(cleanRunNo)) ? liveData.get(cleanRunNo) : null;
-        let fullId = firebaseId || (rt.train_id !== "0" ? String(rt.train_id) : "---");
-        
-        const isUnknown = (fullId === "---" || !fullId || fullId === "undefined");
-        const displayFullId = isUnknown ? "暫無紀錄" : fullId;
-        const trainLen = parseInt(rt.train_length || 1, 10);
+            const getCardHtml = (train, direction) => {
+                const { rt, rowIndex, totalRows, runNoRaw, cleanRunNo } = train;
+                let firebaseId = (cleanRunNo && liveData.has(cleanRunNo)) ? liveData.get(cleanRunNo) : null;
+                let fullId = firebaseId || (rt.train_id !== "0" ? String(rt.train_id) : "---");
+                const isUnknown = (fullId === "---" || !fullId || fullId === "undefined");
+                const displayFullId = isUnknown ? "---" : fullId;
+                const trainLen = parseInt(rt.train_length || 1, 10);
+                const carList = !isUnknown ? String(fullId).split(/[\+\-–]/).map(s => s.trim()) : [];
+                const isLengthMismatch = (!isUnknown && carList.length > 0 && carList.length !== trainLen);
 
-        const trainKey = isUnknown ? `UNK-${cleanRunNo || '000'}-${trainLen}` : `FID-${fullId}`;
+                let iconHtml = '';
+                if (!isUnknown) {
+                    iconHtml = carList.map(num => `<img src="${window.getCarIcon ? window.getCarIcon(num, specialCfg) : 'P1R.png'}" style="height: 14px; object-fit: contain;">`).join('');
+                } else {
+                    iconHtml = Array(trainLen).fill(0).map((_, i) => `<img src="${i === 0 ? 'P2.png' : 'P2T.png'}" style="height: 14px; object-fit: contain;">`).join('');
+                }
 
-        let iconHtml = '';
-        if (!isUnknown) {
-            const carList = String(fullId).split(/[\+\-–]/).map(s => s.trim());
-            iconHtml = carList.map(num => {
-                const icon = window.getCarIcon ? window.getCarIcon(num, specialCfg) : "P1R.png";
-                return `<img src="${icon}" style="height: 18px; object-fit: contain;">`;
-            }).join('');
-        } else {
-            const icons = [];
-            for (let i = 0; i < trainLen; i++) {
-                const iconSrc = (i === 0) ? "P2.png" : "P2T.png";
-                icons.push(`<img src="${iconSrc}" style="height: 18px; object-fit: contain;">`);
-            }
-            iconHtml = icons.join('');
-        }
+                const timeCh = rt.time_ch || "";
+                const isApproaching = timeCh.includes('即將抵達') || timeCh.includes('抵達');
+                const isAtStation = (timeCh === "-" || timeCh.includes('離開')) && !isApproaching;
+                
+                const offset = (!isAtStation && rowIndex !== 0 && rowIndex !== totalRows - 1) 
+                    ? (direction === 'main' ? 55 : -55) 
+                    : 0;
+                
+                const arrowIcon = direction === 'main' ? 'arrow_downward' : 'arrow_upward';
 
-        const timeCh = rt.time_ch || "";
-        const isApproaching = timeCh.includes('即將抵達') || timeCh.includes('抵達');
-        const isAtStation = (timeCh === "-" || timeCh.includes('離開')) && !isApproaching;
-        const offset = (!isAtStation && rowIndex !== 0 && rowIndex !== totalRows - 1) ? -55 : 0;
+                return `
+                    <div class="jr-tag" style="display: flex; flex-direction: column; align-items: center; padding: 4px 4px; background: rgba(255, 255, 255, 0.5) !important; border-radius: 8px; transform: translateY(${offset}px); transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.08); pointer-events: auto; min-width: 45px; max-width: 100px; width: fit-content; z-index: 10; animation: tagFadeIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; opacity: 0.95;">
+                        <div style="display: flex; align-items: center; gap: 1px; line-height: 1;">
+                            <span class="material-symbols-rounded" style="font-size: 9px; color: ${routeColor}; font-weight: 900;">${arrowIcon}</span>
+                            <span style="font-size: 8px; font-weight: 900; color: ${routeColor}; letter-spacing: -0.2px; white-space: nowrap;">${runNoRaw ? String(runNoRaw).padStart(3,'0') : '---'}</span>
+                        </div>
+                        <div style="display: flex; gap: 1px; align-items: center; margin-top: 2px;">${iconHtml}</div>
+                        <div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 14px; margin-top: 1px;">
+                            <span style="font-size: 8px; font-weight: ${isUnknown ? '500' : '900'}; color: ${isUnknown ? '#44474e' : (isLengthMismatch ? '#f57c00' : '#1c1b1f')}; letter-spacing: -0.2px; line-height: 1; white-space: nowrap;">${displayFullId}</span>
+                        </div>
+                    </div>`.trim();
+            };
 
-        const cardHtml = `
-            <div class="jr-tag" data-tkey="${trainKey}" data-offset="${offset}" style="
-                display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 7px 14px;
-                background: white; border-radius: 12px;
-                transform: translateY(${offset}px);
-                transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
-                cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.06);
-                pointer-events: auto; min-width: 80px; width: fit-content; z-index: 10;
-                animation: tagFadeIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-            ">
-                <div style="display: flex; align-items: center; justify-content: center; gap: 5px; width: 100%;">
-                    <span style="font-size: 10.5px; font-weight: 900; color: ${routeColor}; letter-spacing: -0.3px;">
-                        ${runNoRaw ? String(runNoRaw).padStart(3,'0') : '---'}
-                    </span>
-                    <div style="display: flex; gap: 2px; align-items: center;">${iconHtml}</div>
-                </div>
-                <div style="display: flex; align-items: center; justify-content: center; width: 100%;">
-                    <span style="
-                        font-size: ${isUnknown ? '11.5px' : '13.5px'}; 
-                        font-weight: ${isUnknown ? '500' : '900'}; 
-                        color: ${isUnknown ? '#44474e' : '#1c1b1f'}; 
-                        letter-spacing: -0.2px;
-                    ">
-                        ${displayFullId}
-                    </span>
-                </div>
-            </div>
-        `.replace(/>\s+</g, '><').trim();
+            const mainBuf = {}; 
+            const oppBuf = {};
+            mainTrainsMap.forEach(t => { if(!mainBuf[t.stnId]) mainBuf[t.stnId] = ''; mainBuf[t.stnId] += getCardHtml(t, 'main'); });
+            oppTrainsMap.forEach(t => { if(!oppBuf[t.stnId]) oppBuf[t.stnId] = ''; oppBuf[t.stnId] += getCardHtml(t, 'opp'); });
 
-        if (!stationHtmlBuffer[stnId]) stationHtmlBuffer[stnId] = '';
-        stationHtmlBuffer[stnId] += cardHtml;
-    });
-
-    rows.forEach(row => {
-        const stnId = row.getAttribute('data-stn-id');
-        const slot = row.querySelector('.train-slot');
-        const newHtml = stationHtmlBuffer[stnId] || '';
-        if (slot.innerHTML !== newHtml) {
-            slot.innerHTML = newHtml;
-        }
-    });
-};
+            rows.forEach(row => {
+                const stnId = row.getAttribute('data-stn-id');
+                const slotMain = row.querySelector('.train-slot-main');
+                const slotOpp = row.querySelector('.train-slot-opp');
+                if (slotMain) slotMain.innerHTML = mainBuf[stnId] || '';
+                if (slotOpp) slotOpp.innerHTML = oppBuf[stnId] || '';
+            });
+        };
 
         renderStationList();
         if (window.routeDetailTimer) clearInterval(window.routeDetailTimer);
         window.routeDetailTimer = setInterval(updateTrains, 10000);
-
         contentArea.classList.remove('page-exit');
         contentArea.classList.add('page-enter');
         requestAnimationFrame(() => contentArea.classList.remove('page-enter'));
