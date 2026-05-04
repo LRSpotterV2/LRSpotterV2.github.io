@@ -42,34 +42,34 @@
 </div>
 
 <script>
-// 使用匿名自執行函式或確保在頁面載入時初始化
-(function() {
+// 將邏輯封裝成全域函式，方便跳轉後執行
+window.initSubmitPageLogic = function() {
     const routeSelect = document.getElementById('routeSelect');
     if (!routeSelect) return;
 
-    // 清空並填充路綫 (引用 script.js 中的 routeCfg)
+    // 1. 先初始化路綫選單 (確保有 Options 才能被選中)
     routeSelect.innerHTML = '<option value="">選擇</option>';
-    Object.keys(routeCfg).forEach(route => {
-        const opt = document.createElement('option');
-        opt.value = route;
-        opt.textContent = route;
-        routeSelect.appendChild(opt);
-    });
+    if (typeof routeCfg !== 'undefined') {
+        Object.keys(routeCfg).forEach(route => {
+            const opt = document.createElement('option');
+            opt.value = route;
+            opt.textContent = route;
+            routeSelect.appendChild(opt);
+        });
+    }
 
-    // 定義連動邏輯
+    // 2. 定義連動邏輯 (確保 window.onRouteUpdate 可用)
     window.onRouteUpdate = function() {
         const route = routeSelect.value;
         const directionSelect = document.getElementById('directionSelect');
         const stationSelect = document.getElementById('stationSelect');
 
-        // 1. 重置選單
         directionSelect.innerHTML = '<option value="">目的地</option>';
         stationSelect.innerHTML = '<option value="">車站</option>';
 
         if (!route) return;
 
-        // 2. 自動更新「往」：引用 script.js 中的 routeCfg
-        if (routeCfg[route]) {
+        if (typeof routeCfg !== 'undefined' && routeCfg[route]) {
             routeCfg[route].forEach(dest => {
                 const opt = document.createElement('option');
                 opt.value = dest;
@@ -78,21 +78,58 @@
             });
         }
 
-        // 3. 自動更新「位置」：從 stationDB 篩選有經過該路綫的車站
-        // 如果是特殊狀態（不載客/回廠等），則顯示所有車站
-        const isSpecial = ["不載客", "司機訓練", "回廠", "專用"].includes(route);
-        const filteredStations = isSpecial 
-            ? stationDB 
-            : stationDB.filter(s => s.r.includes(route));
+        if (typeof stationDB !== 'undefined') {
+            const isSpecial = ["不載客", "司機訓練", "回廠", "專用"].includes(route);
+            const filteredStations = isSpecial 
+                ? stationDB 
+                : stationDB.filter(s => s.r.includes(route));
 
-        filteredStations.forEach(s => {
-            const opt = document.createElement('option');
-            opt.value = s.zh;
-            opt.textContent = s.zh;
-            stationSelect.appendChild(opt);
-        });
+            filteredStations.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.zh;
+                opt.textContent = s.zh;
+                stationSelect.appendChild(opt);
+            });
+        }
     };
-})();
+
+    // --- 關鍵步驟：執行自動填充 ---
+    if (window.pendingSubmitData) {
+        const data = window.pendingSubmitData;
+        const runNoInput = document.getElementById('runNo');
+        const directionSelect = document.getElementById('directionSelect');
+        const stationSelect = document.getElementById('stationSelect');
+
+        // 填充車序
+        if (data.runNo) runNoInput.value = data.runNo;
+
+        // 填充路綫並手動觸發連動 (生成目的地和車站列表)
+        if (data.route) {
+            routeSelect.value = data.route;
+            window.onRouteUpdate(); 
+        }
+
+        // 填充方向
+        if (data.dest) directionSelect.value = data.dest;
+
+        // 填充車站 (根據傳進來的 sId 匹配 stationDB 中的 zh 站名)
+        if (data.stationId && typeof stationDB !== 'undefined') {
+            const station = stationDB.find(s => String(s.id) === String(data.stationId));
+            if (station) {
+                stationSelect.value = station.zh;
+            }
+        }
+
+        // 自動聚焦車編
+        setTimeout(() => document.getElementById('carId').focus(), 150);
+
+        // 清除暫存
+        window.pendingSubmitData = null;
+    }
+};
+
+// 頁面載入時自動執行一次
+window.initSubmitPageLogic();
 </script>
 
 <style>
