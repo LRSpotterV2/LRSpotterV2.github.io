@@ -100,6 +100,7 @@ window.routeConfig = {
         color: "#F2858E",
         dest: ["兆康", "屯門碼頭"],
         isSingleDirection: false,
+		isDirectCircular: true,
 		0: [100, 340, 330, 320, 310, 300, 280, 270, 265, 260, 250, 240, 1]
     },
     "615": {
@@ -112,6 +113,7 @@ window.routeConfig = {
         color: "#006585",
         dest: ["兆康", "屯門碼頭"],
         isSingleDirection: false,
+		isDirectCircular: true,
         0: [100, 110, 120, 130, 140, 150, 160, 170, 200, 50, 40, 30, 20, 15, 10, 1]
     },
     "705": {
@@ -175,6 +177,7 @@ window.routeConfig = {
 		isSpecialDeparture: true, 
         isSchoolHolidayAvailable: false,
 		RunNumber: ["904", "905"],
+		GovAPIusage: true,
 		specialdescription: "途經龍門、屯門、杯渡、景峰前往兆康",
         0: [1, 10, 15, 20, 30, 40, 50, 60, 295, 300, 310, 320, 330, 340, 100],
 		scheduledDepartures: {
@@ -193,6 +196,7 @@ window.routeConfig = {
 		isSpecialDeparture: true, 
         isSchoolHolidayAvailable: true,
 		RunNumber: "902",
+		GovAPIusage: true,
 		specialdescription: "途經青松、建生、田景往屯門碼頭",
         0: [100, 120, 130, 140, 150, 160, 212, 220, 230, 75, 70, 295, 280, 270, 265, 260, 250, 240, 1],
 		scheduledDepartures: {
@@ -211,6 +215,7 @@ window.routeConfig = {
 		isSpecialDeparture: true, 
         isSchoolHolidayAvailable: false,
 		RunNumber: "904",
+		GovAPIusage: true,
 		specialdescription: "到達天榮站後改為751P前往天水圍",
         0: [100, 350, 360, 370, 380, 425, 445, 448, 460, 490, 500],
 		scheduledDepartures: {
@@ -250,6 +255,7 @@ window.routeConfig = {
         isSingleDirection: true,
 		isSpecialDeparture: true, 
 		RunNumber: "901",
+		GovAPIusage: true,
 		specialdescription: "到達兆康站後改為615前往屯門碼頭",
         0: [550, 480, 468, 490, 500, 455, 450, 435, 430, 425, 380, 370, 360, 350, 100, 120, 130, 140, 150, 160, 170, 200, 50, 40, 30, 20, 15, 10, 1],
 		scheduledDepartures: {
@@ -1114,6 +1120,9 @@ if (dateInput) {
 document.head.appendChild(disableSelectStyle);
 
 
+
+// Train Page //
+
 window.viewPhaseDetails = (phaseName, rangeStr) => {
     const contentArea = document.getElementById('app-content');
     const headerTitle = document.getElementById('headerTitle');
@@ -1667,7 +1676,7 @@ try {
 
 
 
-// Train //
+// Train Details //
 
 window.viewTrainHistory = async (carNum) => {
     const contentArea = document.getElementById('app-content');
@@ -2038,7 +2047,7 @@ document.getElementById('historyBackBtn').onclick = () => {
 
 
 
-/// eta ///
+/// ETA Page ///
 async function initETAPageLogic() {
     const etaList = document.getElementById('text');
     const staIntro = document.getElementById('StaIntro');
@@ -2724,7 +2733,7 @@ headerTitle.innerHTML = `
                 <div class="station-row" data-stn-id="${stn.id}" data-index="${index}" data-total="${stations.length}" 
                      style="position: relative; width: 100%; height: 110px; display: flex; justify-content: center; align-items: center; z-index: 2;">
                     
-                    <div style="position: absolute; ${infoStyle} display: flex; flex-direction: column; z-index: 10; width: 110px; pointer-events: none;">
+                    <div style="position: absolute; ${infoStyle} display: flex; flex-direction: column; z-index: 10; width: 110px;">
                         <span style="display: inline-block; font-size: 13px; font-weight: 800; color: var(--md-sys-color-on-surface); opacity: 0.95; line-height: 1; white-space: nowrap; margin-bottom: 28px; background: var(--md-sys-color-surface-container-lowest); border-radius: 4px; width: fit-content; text-align: ${isSingle ? 'left' : 'center'};">
                             ${stn.zh}
                         </span>
@@ -2787,19 +2796,34 @@ const updateTrains = async () => {
     const dest0 = routeDest[0];
     const dest1 = routeDest[1];
 
-    // 1. Duo API Fetching: 每一站同時抓取 Cube 與 Gov API (包含特別班次)
+    // 檢查是否強制使用官方 API (例如特別路綫)
+    const isGovOnly = routeConfig && routeConfig.GovAPIusage === true;
+
+    // 1. 根據 GovAPIusage 進行 API 分流抓取
     const fetchPromises = rows.map(row => {
         const stnId = row.getAttribute('data-stn-id');
-        return Promise.all([
-            fetch(`https://lrtapi.lightcatcube.com/api/schedule?station_id=${stnId}`).then(r => r.json()).catch(() => ({})),
-            fetch(`https://rt.data.gov.hk/v1/transport/mtr/lrt/getSchedule?station_id=${stnId}&with_special=1`).then(r => r.json()).catch(() => ({}))
-        ]);
+        
+        if (isGovOnly) {
+            // 特別路綫模式：僅抓取官方 API (開啟 with_special=1)
+            return fetch(`https://rt.data.gov.hk/v1/transport/mtr/lrt/getSchedule?station_id=${stnId}&with_special=1`)
+                .then(r => r.json())
+                .then(govRes => [ { platform_list: [] }, govRes ]) // 模擬 Cube 為空
+                .catch(() => [{}, {}]);
+        } else {
+            // 常規路綫模式：僅抓取 LightCatCube API
+            return fetch(`https://lrtapi.lightcatcube.com/api/schedule?station_id=${stnId}`)
+                .then(r => r.json())
+                .then(cubeRes => [ cubeRes, { platform_list: [] } ]) // 模擬官方為空
+                .catch(() => [{}, {}]);
+        }
     });
 
     const allStationResults = await Promise.all(fetchPromises);
     const mainTrainsMap = new Map();
     const oppTrainsMap = new Map();
-    const processedRuns = new Set();
+    
+    // 用於解決跑號同時出現在兩個方向的衝突
+    const conflictResolver = new Map(); 
 
     rows.forEach((row, idx) => {
         const [cubeRes, govRes] = allStationResults[idx];
@@ -2807,21 +2831,9 @@ const updateTrains = async () => {
         const rowIndex = parseInt(row.getAttribute('data-index'));
         const totalRows = parseInt(row.getAttribute('data-total'));
 
-        // 2. 獲取 Cube API 已有的跑號清單，避免重複
-        const cubeRunNos = new Set();
-        (cubeRes.platform_list || []).forEach(p => {
-            (p.route_list || []).forEach(r => {
-                if (String(r.route_no) !== String(routeId)) return;
-                let trip = r.trip_no ? String(r.trip_no) : "";
-                let runNo = (trip.length > 2) ? trip.substring(0, trip.length - 2) : trip;
-                if (runNo) cubeRunNos.add(parseInt(runNo, 10).toString());
-            });
-        });
-
-        // 3. 合併數據源：Cube 正常班次 + Gov 特別班次
         const combinedRoutes = [];
-        
-        // 加入 Cube 數據
+
+        // 處理 Cube API 數據 (僅在非 GovOnly 模式下有數據)
         (cubeRes.platform_list || []).forEach(p => {
             (p.route_list || []).forEach(r => {
                 if (String(r.route_no) === String(routeId)) {
@@ -2830,51 +2842,35 @@ const updateTrains = async () => {
             });
         });
 
-(govRes.platform_list || []).forEach(p => {
-    (p.route_list || []).forEach(g => {
-        const isSpec = g.special === 1;
-        if (!isSpec) return;
+        // 處理 MTR 官方 API 數據 (僅在 GovOnly 模式下處理)
+        (govRes.platform_list || []).forEach(p => {
+            (p.route_list || []).forEach(g => {
+                const govRunNo = parseInt(g.route_no, 10).toString();
+                let isMatch = false;
 
-        const govRunNo = parseInt(g.route_no, 10).toString(); // 例如 "903"
-        if (cubeRunNos.has(govRunNo)) return;
+                // 在 GovOnly 模式下，判斷該班次是否屬於目前瀏覽的路綫
+                const matchedRoute = g.additionalInfo1 ? g.additionalInfo1.replace(/[\*\s]/g, '') : "";
+                if (matchedRoute === String(routeId)) isMatch = true;
+                if (!isMatch && routeConfig && routeConfig.RunNumber && routeConfig.RunNumber.includes(govRunNo)) isMatch = true;
 
-        // --- 鏈接邏輯開始 ---
-        let isMatch = false;
-
-        // 方法 A: 檢查 additionalInfo1 (原有的標籤匹配)
-        const matchedRoute = g.additionalInfo1 ? g.additionalInfo1.replace(/[\*\s]/g, '') : "";
-        if (matchedRoute === String(routeId)) {
-            isMatch = true;
-        }
-
-        // 方法 B: 檢查 routeConfig 裡的 RunNumber 陣列 (針對 751L / 903 這種情況)
-        if (!isMatch && routeConfig && routeConfig.RunNumber) {
-            if (routeConfig.RunNumber.includes(govRunNo)) {
-                isMatch = true;
-            }
-        }
-
-        if (isMatch) {
-            combinedRoutes.push({
-                ...g,
-                isOfficialSpecial: true,
-                // 強制將路線編號改為當前 routeId，確保 UI 顯示正確 (例如顯示 751L 而不是 SPR)
-                route_no: routeId, 
-                trip_no: govRunNo + "01", 
-                dest_ch: g.dest_ch
+                // 如果是官方標記的特別車，或者處於 GovOnly 模式且匹配路綫
+                if (isMatch || (g.special === 1 && matchedRoute === String(routeId))) {
+                    combinedRoutes.push({
+                        ...g,
+                        isOfficialSpecial: true,
+                        route_no: routeId, 
+                        trip_no: govRunNo + "01" // 模擬 Cube 的 trip_no 格式以便後續解析 runNo
+                    });
+                }
             });
-        }
-    });
-});
+        });
 
-        // 4. 方向判斷與 Map 填寫
         combinedRoutes.forEach(rt => {
             const apiDest = rt.dest_ch || "";
             let isMain = false, isOpp = false;
 
             if (isSingle) {
                 isMain = apiDest.includes(dest0);
-                isOpp = false;
             } else {
                 isMain = apiDest.includes(dest1);
                 isOpp = apiDest.includes(dest0);
@@ -2887,8 +2883,6 @@ const updateTrains = async () => {
             const cleanRunNo = runNoRaw ? parseInt(runNoRaw, 10).toString() : "";
             const trackKey = cleanRunNo || `ID-${rt.train_id}`;
 
-            if (processedRuns.has(trackKey)) return;
-
             let etaVal = 999;
             const timeCh = rt.time_ch || "";
             if (timeCh.includes('即將抵達') || timeCh.includes('抵達')) etaVal = 0;
@@ -2898,112 +2892,122 @@ const updateTrains = async () => {
                 if (m) etaVal = parseInt(m[0]);
             }
 
+            if (!conflictResolver.has(trackKey)) {
+                conflictResolver.set(trackKey, { mainMaxEta: -1, oppMaxEta: -1 });
+            }
+            const res = conflictResolver.get(trackKey);
+            if (isMain) res.mainMaxEta = Math.max(res.mainMaxEta, etaVal);
+            if (isOpp) res.oppMaxEta = Math.max(res.oppMaxEta, etaVal);
+
             const trainData = { rt, stnId, rowIndex, totalRows, runNoRaw, cleanRunNo, etaVal };
 
             if (isMain) {
                 const existing = mainTrainsMap.get(trackKey);
-                if (!existing || etaVal < existing.etaVal) {
-                    mainTrainsMap.set(trackKey, trainData);
-                }
+                if (!existing || etaVal < existing.etaVal) mainTrainsMap.set(trackKey, trainData);
             } else {
                 const existing = oppTrainsMap.get(trackKey);
-                if (!existing || etaVal < existing.etaVal) {
-                    oppTrainsMap.set(trackKey, trainData);
-                }
+                if (!existing || etaVal < existing.etaVal) oppTrainsMap.set(trackKey, trainData);
             }
         });
     });
 
-    // 標記所有已處理的跑號
-    mainTrainsMap.forEach((_, key) => processedRuns.add(key));
-    oppTrainsMap.forEach((_, key) => processedRuns.add(key));
+    // 2. 執行衝突排除
+    conflictResolver.forEach((data, trackKey) => {
+        if (data.mainMaxEta !== -1 && data.oppMaxEta !== -1) {
+            if (data.mainMaxEta > data.oppMaxEta) {
+                mainTrainsMap.delete(trackKey);
+            } else if (data.oppMaxEta > data.mainMaxEta) {
+                oppTrainsMap.delete(trackKey);
+            }
+        }
+    });
 
+    // 3. UI 狀態橫幅處理
     const hasTrains = (mainTrainsMap.size > 0 || oppTrainsMap.size > 0);
     const banner = document.getElementById('service-status-banner');
     const bannerTextEl = document.getElementById('service-status-text');
 
     if (banner && bannerTextEl) {
         const isSpecial = routeConfig && routeConfig.isSpecialDeparture;
-        const isSchoolHoliday = routeConfig && routeConfig.isSchoolHolidayAvailable;
-
         if (isSpecial) {
             banner.style.display = 'flex';
-            if (String(routeId) === '751P') {
-                bannerTextEl.innerText = "本路綫只於平日繁忙時段按需求提供服務";
-            } else if (!isSchoolHoliday) {
-                bannerTextEl.innerText = "本路綫只於平日（學校假期除外）上午繁忙時段提供服務";
-            } else {
-                bannerTextEl.innerText = "本路綫只於平日及學校假期上午繁忙時段提供服務";
-            }
-
-            banner.style.background ='var(--md-sys-color-error-container)';
-            banner.style.color =  'var(--md-sys-color-on-error-container)';
+            bannerTextEl.innerText = String(routeId) === '751P' ? "本路綫只於平日繁忙時段按需求提供服務" : "本路綫只於平日上午繁忙時段提供服務";
+        } else if (!hasTrains) {
+            banner.style.display = 'flex';
+            bannerTextEl.innerText = "是日列車服務已經終止";
         } else {
-            if (!hasTrains) {
-                banner.style.display = 'flex';
-                bannerTextEl.innerText = "是日列車服務已經終止";
-                banner.style.background = 'var(--md-sys-color-error-container)';
-                banner.style.color = 'var(--md-sys-color-on-error-container)';
-            } else {
-                banner.style.display = 'none';
+            banner.style.display = 'none';
         }
     }
-}
 
+    // 4. 生成 HTML 並渲染
+    const getCardHtml = (train, direction) => {
+    const { rt, rowIndex, totalRows, runNoRaw, cleanRunNo } = train;
+    
+    // --- 提取實時數據 ---
+    // 優先使用 API 傳回的路綫編號，若無則回退至當前頁面路綫
+    const fetchedRoute = rt.route_no || routeId; 
+    // 優先使用 API 傳回的繁體中文目的地 (dest_ch)，若無則使用預設目的地
+    const fetchedDest = rt.dest_ch || (direction === 'main' ? (dest1 || "目的地") : (dest0 || "終點站"));
+    // 根據實時路綫獲取對應顏色
+    const fetchedColor = window.colorMap[fetchedRoute] || routeColor;
 
-            const getCardHtml = (train, direction) => {
-                const { rt, rowIndex, totalRows, runNoRaw, cleanRunNo } = train;
-                let firebaseId = (cleanRunNo && liveData.has(cleanRunNo)) ? liveData.get(cleanRunNo) : null;
-                let fullId = firebaseId || (rt.train_id !== "0" ? String(rt.train_id) : "---");
-                const isUnknown = (fullId === "---" || !fullId || fullId === "undefined");
-                const displayFullId = isUnknown ? "---" : fullId;
-                const trainLen = parseInt(rt.train_length || 1, 10);
-                const carList = !isUnknown ? String(fullId).split(/[\+\-–]/).map(s => s.trim()) : [];
-                const isLengthMismatch = (!isUnknown && carList.length > 0 && carList.length !== trainLen);
+    let firebaseId = (cleanRunNo && liveData.has(cleanRunNo)) ? liveData.get(cleanRunNo) : null;
+    let fullId = firebaseId || (rt.train_id !== "0" ? String(rt.train_id) : "---");
+    const isUnknown = (fullId === "---" || !fullId || fullId === "undefined");
+    const displayFullId = isUnknown ? "---" : fullId;
+    
+    const trainLen = parseInt(rt.train_length || 1, 10);
+    const carList = !isUnknown ? String(fullId).split(/[\+\-–]/).map(s => s.trim()) : [];
+    
+    let iconHtml = '';
+    if (!isUnknown) {
+        iconHtml = carList.map(num => `<img src="${window.getCarIcon ? window.getCarIcon(num, specialCfg) : 'P1R.png'}" style="height: 14px; object-fit: contain;">`).join('');
+    } else {
+        iconHtml = Array(trainLen).fill(0).map((_, i) => `<img src="${i === 0 ? 'P2.png' : 'P2T.png'}" style="height: 14px; object-fit: contain;">`).join('');
+    }
 
-                let iconHtml = '';
-                if (!isUnknown) {
-                    iconHtml = carList.map(num => `<img src="${window.getCarIcon ? window.getCarIcon(num, specialCfg) : 'P1R.png'}" style="height: 14px; object-fit: contain;">`).join('');
-                } else {
-                    iconHtml = Array(trainLen).fill(0).map((_, i) => `<img src="${i === 0 ? 'P2.png' : 'P2T.png'}" style="height: 14px; object-fit: contain;">`).join('');
-                }
+    const timeCh = rt.time_ch || "";
+    const isApproaching = timeCh.includes('即將抵達') || timeCh.includes('抵達');
+    const isAtStation = (timeCh === "-" || timeCh.includes('離開')) && !isApproaching;
+    const offset = (!isAtStation && rowIndex !== 0 && rowIndex !== totalRows - 1) ? (direction === 'main' ? 55 : -55) : 0;
+    const arrowIcon = direction === 'main' ? 'arrow_downward' : 'arrow_upward';
 
-                const timeCh = rt.time_ch || "";
-                const isApproaching = timeCh.includes('即將抵達') || timeCh.includes('抵達');
-                const isAtStation = (timeCh === "-" || timeCh.includes('離開')) && !isApproaching;
-                
-                const offset = (!isAtStation && rowIndex !== 0 && rowIndex !== totalRows - 1) 
-                    ? (direction === 'main' ? 55 : -55) 
-                    : 0;
-                
-                const arrowIcon = direction === 'main' ? 'arrow_downward' : 'arrow_upward';
+    return `
+        <div class="jr-tag" 
+             onclick='window.openTrainDetails({
+                routeId: "${fetchedRoute}",
+                runNo: "${runNoRaw ? String(runNoRaw).padStart(3,"0") : "---"}",
+                fullId: "${displayFullId}",
+                dest: "${fetchedDest}",
+                iconHtml: \`${iconHtml.replace(/"/g, "&quot;")}\`,
+                color: "${fetchedColor}"
+             })'
+             style="pointer-events: auto; cursor: pointer; display: flex; flex-direction: column; align-items: center; padding: 4px; background: rgba(255, 255, 255, 0.5); border-radius: 8px; transform: translateY(${offset}px); transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 6px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.08); min-width: 45px; z-index: 10; animation: tagFadeIn 0.5s ease-out forwards;">
+            <div style="display: flex; align-items: center; gap: 1px; line-height: 1;">
+                <span class="material-symbols-rounded" style="font-size: 9px; color: ${fetchedColor}; font-weight: 900;">${arrowIcon}</span>
+                <span style="font-size: 8px; font-weight: 900; color: ${fetchedColor};">${runNoRaw ? String(runNoRaw).padStart(3,'0') : '---'}</span>
+            </div>
+            <div style="display: flex; gap: 1px; align-items: center; margin-top: 2px;">${iconHtml}</div>
+            <div style="display: flex; align-items: center; justify-content: center; height: 14px; margin-top: 1px;">
+                <span style="font-size: 8px; font-weight: ${isUnknown ? '500' : '900'}; color: ${isUnknown ? '#44474e' : '#1c1b1f'};">${displayFullId}</span>
+            </div>
+        </div>`.trim();
+};
 
-                return `
-                    <div class="jr-tag" style="display: flex; flex-direction: column; align-items: center; padding: 4px 4px; background: rgba(255, 255, 255, 0.5) !important; border-radius: 8px; transform: translateY(${offset}px); transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.08); pointer-events: auto; min-width: 45px; max-width: 100px; width: fit-content; z-index: 10; animation: tagFadeIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; opacity: 0.95;">
-                        <div style="display: flex; align-items: center; gap: 1px; line-height: 1;">
-                            <span class="material-symbols-rounded" style="font-size: 9px; color: ${routeColor}; font-weight: 900;">${arrowIcon}</span>
-                            <span style="font-size: 8px; font-weight: 900; color: ${routeColor}; letter-spacing: -0.2px; white-space: nowrap;">${runNoRaw ? String(runNoRaw).padStart(3,'0') : '---'}</span>
-                        </div>
-                        <div style="display: flex; gap: 1px; align-items: center; margin-top: 2px;">${iconHtml}</div>
-                        <div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 14px; margin-top: 1px;">
-                            <span style="font-size: 8px; font-weight: ${isUnknown ? '500' : '900'}; color: ${isUnknown ? '#44474e' : (isLengthMismatch ? '#f57c00' : '#1c1b1f')}; letter-spacing: -0.2px; line-height: 1; white-space: nowrap;">${displayFullId}</span>
-                        </div>
-                    </div>`.trim();
-            };
+    const mainBuf = {}; 
+    const oppBuf = {};
+    mainTrainsMap.forEach(t => { if(!mainBuf[t.stnId]) mainBuf[t.stnId] = ''; mainBuf[t.stnId] += getCardHtml(t, 'main'); });
+    oppTrainsMap.forEach(t => { if(!oppBuf[t.stnId]) oppBuf[t.stnId] = ''; oppBuf[t.stnId] += getCardHtml(t, 'opp'); });
 
-            const mainBuf = {}; 
-            const oppBuf = {};
-            mainTrainsMap.forEach(t => { if(!mainBuf[t.stnId]) mainBuf[t.stnId] = ''; mainBuf[t.stnId] += getCardHtml(t, 'main'); });
-            oppTrainsMap.forEach(t => { if(!oppBuf[t.stnId]) oppBuf[t.stnId] = ''; oppBuf[t.stnId] += getCardHtml(t, 'opp'); });
-
-            rows.forEach(row => {
-                const stnId = row.getAttribute('data-stn-id');
-                const slotMain = row.querySelector('.train-slot-main');
-                const slotOpp = row.querySelector('.train-slot-opp');
-                if (slotMain) slotMain.innerHTML = mainBuf[stnId] || '';
-                if (slotOpp) slotOpp.innerHTML = oppBuf[stnId] || '';
-            });
-        };
+    rows.forEach(row => {
+        const stnId = row.getAttribute('data-stn-id');
+        const slotMain = row.querySelector('.train-slot-main');
+        const slotOpp = row.querySelector('.train-slot-opp');
+        if (slotMain) slotMain.innerHTML = mainBuf[stnId] || '';
+        if (slotOpp) slotOpp.innerHTML = oppBuf[stnId] || '';
+    });
+};
 
         renderStationList();
         if (window.routeDetailTimer) clearInterval(window.routeDetailTimer);
@@ -3012,4 +3016,157 @@ const updateTrains = async () => {
         contentArea.classList.add('page-enter');
         requestAnimationFrame(() => contentArea.classList.remove('page-enter'));
     }, 250);
+};
+
+
+/// --- Train Info Card ---
+window.openTrainDetails = (data) => {
+    const existing = document.getElementById('train-bottom-sheet');
+    if (existing) existing.remove();
+
+    const displayColor = window.colorMap[data.routeId] || data.color || 'var(--md-sys-color-primary)';
+
+    const overlay = document.createElement('div');
+    overlay.id = 'train-bottom-sheet';
+    overlay.className = 'modal-overlay'; 
+    overlay.onclick = (e) => { if (e.target === overlay) closeSheet(); };
+
+    const sheet = document.createElement('div');
+    sheet.className = 'modal-content'; 
+    
+    sheet.style.cssText = `
+        background: var(--md-sys-color-surface-container);
+        box-sizing: border-box; width: 100%; display: flex; flex-direction: column;
+        padding: 16px 16px 40px 16px; gap: 16px; box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+        transition: transform 0.4s var(--transition-standard); transform: translateY(100%);
+        pointer-events: auto;
+    `;
+
+    const jumpToSubmit = () => {
+        window.pendingSubmitData = { 
+            runNo: data.runNo || "---", 
+            route: data.routeId || "", 
+            dest: data.dest || "",    
+            stationId: data.stationId || "1" 
+        }; 
+        if (window.navigateTo) {
+            window.navigateTo('submit', '提交行蹤'); 
+            setTimeout(() => { if (typeof initSubmitPageLogic === 'function') initSubmitPageLogic(); }, 50);
+        }
+        closeSheet();
+    };
+
+    window.handleSheetUpdateClick = jumpToSubmit;
+
+    // 1. 處理車號顯示邏輯：若無資料則顯示「暫無資料」
+    const trainNumberDisplay = (data.fullId && data.fullId !== "---") ? data.fullId : "暫無資料";
+
+    // 2. 處理最後更新時間 (從 Firebase 數據中提取)
+    let lastUpdateStr = "未知";
+    if (data.time) {
+        const date = new Date(data.time);
+        // 格式化為 hh:mm:ss
+        lastUpdateStr = date.getHours().toString().padStart(2, '0') + ':' + 
+                        date.getMinutes().toString().padStart(2, '0') + ':' + 
+                        date.getSeconds().toString().padStart(2, '0');
+    }
+
+    sheet.innerHTML = `
+        <div style="width: 40px; height: 4px; background: var(--md-sys-color-outline); border-radius: 2px; opacity: 0.3; align-self: center; margin-bottom: 4px;"></div>
+        
+        <div style="background: var(--md-sys-color-surface-container-lowest, #ffffff); padding: 16px 12px; border-radius: 16px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+            
+            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 10px;">
+                
+                <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 7px; flex: 0 0 90px; padding: 2px 0;">
+                    <div style="display: flex; align-items: center; justify-content: flex-start; width: 48px; height: 24px;">
+                        <div style="display: flex; transform: scale(1.6); transform-origin: left center;">
+                            ${data.iconHtml ? data.iconHtml.replace(/height: 14px/g, 'height: 18px') : ''}
+                        </div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 1px; width: 100%;">
+                        <span style="font-size: 16px; font-weight: 800; color: var(--md-sys-color-on-surface); letter-spacing: -0.5px; line-height: 1.1; white-space: nowrap;">
+                            ${trainNumberDisplay}
+                        </span>
+                        <span style="font-size: 9px; color: var(--md-sys-color-outline); font-weight: 500; white-space: nowrap;">
+                            ${data.desc || "輕軌列車"}
+                        </span>
+                    </div>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 8px; flex: 1.2; min-width: 0; border-left: 1px solid var(--md-sys-color-outline-variant); padding-left: 10px;">
+                    
+                    <div style="display: flex; flex-direction: column; gap: 4px; align-items: center; flex-shrink: 0;">
+                        <span style="background: ${displayColor}; color: #FFFFFF; width: 36px; height: 19px; display: flex; align-items: center; justify-content: center; border-radius: 4px; font-size: 11px; font-weight: 800;">
+                            ${data.routeId}
+                        </span>
+                        <span style="background: transparent; border: 1px solid var(--md-sys-color-outline); color: var(--md-sys-color-on-surface-variant); width: 36px; height: 15px; display: flex; align-items: center; justify-content: center; border-radius: 4px; font-size: 9px; font-weight: 600;">
+                            ${data.runNo || '---'}
+                        </span>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1;">
+                        <span style="font-size: 15px; color: var(--md-sys-color-on-surface); font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            往 ${data.dest}
+                        </span>
+                        <div style="display: flex; flex-direction: column; gap: 1px;">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span style="font-size: 9px; color: var(--md-sys-color-on-surface-variant); opacity: 0.8; background: var(--md-sys-color-surface-variant); padding: 1px 6px; border-radius: 4px; flex-shrink: 0; font-weight: 600;">實時</span>
+                                <span style="font-size: 9px; color: var(--md-sys-color-outline); font-weight: 500; white-space: nowrap;">最後更新：${lastUpdateStr}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="updateSpottingRecord" onclick="window.handleSheetUpdateClick()" 
+                     style="padding: 6px; border-radius: 14px; background: var(--md-sys-color-surface-container-high); cursor: pointer; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 54px; height: 54px; transition: background 0.2s; flex-shrink: 0; box-sizing: border-box;">
+                    <span class="material-symbols-rounded" style="font-size: 22px; display: block; margin-bottom: 2px;">edit_location_alt</span>
+                    <div style="font-size: 8px; font-weight: 800; line-height: 1.1; display: flex; flex-direction: column;">
+                        <span>更新</span><span>行蹤</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="width: 100%; border-top: 1px solid var(--md-sys-color-outline-variant, #eee); padding-top: 14px;">
+                <div style="position: relative; display: flex; flex-direction: column; gap: 18px; padding-left: 28px; margin: 0 4px;">
+                    <div style="position: absolute; left: 5px; top: 6px; bottom: 6px; width: 2px; background: var(--md-sys-color-outline-variant); z-index: 1;"></div>
+                    
+                    <div style="display: flex; align-items: center; position: relative; opacity: 0.5;">
+                        <div style="position: absolute; left: -28px; width: 11px; height: 11px; border-radius: 50%; background: var(--md-sys-color-outline); z-index: 2; border: 2px solid var(--md-sys-color-surface-container-lowest);"></div>
+                        <span style="font-size: 12px; font-weight: 500; color: var(--md-sys-color-on-surface);">上一站</span>
+                    </div>
+
+                    <div style="display: flex; align-items: center; position: relative;">
+                        <div style="position: absolute; left: -28px; width: 11px; height: 11px; border-radius: 50%; background: ${displayColor}; z-index: 2; border: 2px solid var(--md-sys-color-surface-container-lowest); outline: 2px solid ${displayColor}; animation: pulse 1.5s infinite;"></div>
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 13px; font-weight: 700; color: var(--md-sys-color-on-surface);">${data.dest} 方向</span>
+                            <span style="font-size: 10px; color: ${displayColor}; font-weight: 700;">即將抵達</span>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; align-items: center; position: relative;">
+                        <div style="position: absolute; left: -28px; width: 11px; height: 11px; border-radius: 50%; background: var(--md-sys-color-surface-variant); z-index: 2; border: 2px solid var(--md-sys-color-surface-container-lowest); border: 1px solid var(--md-sys-color-outline);"></div>
+                        <span style="font-size: 12px; font-weight: 500; color: var(--md-sys-color-on-surface);">下一站</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button onclick="window.closeTrainBottomSheet()" 
+                style="width: 100%; padding: 14px; border-radius: 100px; border: none; 
+                       background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); 
+                       font-weight: 700; font-size: 15px; cursor: pointer; margin-top: 4px;">
+            關閉
+        </button>
+    `;
+
+    overlay.appendChild(sheet);
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => { sheet.style.transform = 'translateY(0)'; });
+
+    const closeSheet = () => {
+        sheet.style.transform = 'translateY(100%)';
+        setTimeout(() => overlay.remove(), 350);
+    };
+    window.closeTrainBottomSheet = closeSheet;
 };
